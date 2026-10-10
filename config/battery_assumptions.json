@@ -1,0 +1,21 @@
+{
+  "_readme": "Illustrative defaults for the Layer 2 battery-waste model. Replace with your team's numbers (or drop your own district waste table in raw/layer2_waste.csv). Units: kWh per pack, kg per kWh, years.",
+  "vehicle_mix": {"e2W": 0.56, "e3W": 0.37, "e4W": 0.06, "eBus/Other": 0.01},
+  "pack_kwh": {"e2W": 2.5, "e3W": 5.0, "e4W": 30.0, "eBus/Other": 150.0},
+  "chemistry_share": {
+    "e2W": {"NMC": 0.6, "LFP": 0.4},
+    "e3W": {"Lead-acid": 0.45, "LFP": 0.45, "NMC": 0.10},
+    "e4W": {"LFP": 0.6, "NMC": 0.4},
+    "eBus/Other": {"LFP": 0.9, "NMC": 0.1}
+  },
+  "pack_kg_per_kwh": {"NMC": 6.5, "LFP": 8.0, "Lead-acid": 30.0},
+  "battery_life_years": {"NMC": 6, "LFP": 8, "Lead-acid": 2},
+  "vehicle_life_years": 8,
+  "life_sd_fraction": 0.25,
+  "material_kg_per_kwh": {
+    "NMC": {"Lithium": 0.12, "Nickel": 0.60, "Cobalt": 0.20, "Manganese": 0.19, "Graphite": 1.00, "Copper": 0.70, "Aluminium": 1.10},
+    "LFP": {"Lithium": 0.10, "Iron": 0.65, "Phosphorus": 0.35, "Graphite": 1.10, "Copper": 0.80, "Aluminium": 1.30},
+    "Lead-acid": {"Lead": 19.5, "Sulphuric acid": 4.5, "Plastics": 2.0}
+  },
+  "forecast_years": [2025, 2035]
+}
