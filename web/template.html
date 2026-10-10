@@ -1,0 +1,802 @@
+<title>DRISHTI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Latin:wdth,wght@75..125,400..800&family=Anek+Devanagari:wght@500;700&family=Hind:wght@400;500;600&display=swap">
+<style>
+/*__LEAFLET_CSS__*/
+</style>
+<style>
+/* Layout: multi-page product site. Navy top bar (Home · About · Facilities ▾). Animated network hero. Planner and User are map-first workspaces with floating glass consoles. */
+:root{
+  --bg:#f4f6f9; --bg-alt:#e9edf2; --panel:#ffffff; --panel-2:#f1f4f7; --glass:rgba(255,255,255,.92); --line:#d7dde5; --ink:#0d1b2c; --ink-2:#435167; --ink-3:#6b788b;
+  --bar:#0c1d35; --bar-ink:#eef3f9; --bar-ink-2:#9fb0c7;
+  --accent:#0b7a6f; --accent-2:#13a594; --accent-ink:#ffffff; --accent-soft:#dbf0ec; --gold:#c27d17;
+  --hub:#0d1b2c; --ring:#ffffff; --station:#eb6834; --corridor:#d55181; --van:#1baf7a;
+  --route:#0d1b2c; --quick:#2a78d6; --walk:#5d6b7f; --road:#97a3b3; --road-hi:#d03b3b;
+  --good:#0ca30c; --warn:#fab219; --bad:#d03b3b; --map-bg:#eef1f4; --shadow:0 10px 30px rgba(13,27,44,.10);
+  --f-display:"Anek Latin","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Hind",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-deva:"Anek Devanagari","Nirmala UI","Mangal",sans-serif;
+  --f-mono:"Hind",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0b121b; --bg-alt:#0f1824; --panel:#131f2d; --panel-2:#1a293a; --glass:rgba(19,31,45,.93); --line:#28394d; --ink:#e9eff6; --ink-2:#b0bdcd; --ink-3:#8796ab;
+  --bar:#070e18; --bar-ink:#e9eff6; --bar-ink-2:#8796ab;
+  --accent:#4cb7aa; --accent-2:#6fd3c5; --accent-ink:#06120f; --accent-soft:#163633; --gold:#e3a54a;
+  --hub:#f3f6fa; --ring:#0b121b; --station:#e0602c; --corridor:#e87ba4; --van:#2cc189;
+  --route:#f3f6fa; --quick:#5598e7; --walk:#b0bdcd; --road:#3f5068; --road-hi:#e66767; --map-bg:#0e1722; --shadow:0 10px 30px rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0b121b; --bg-alt:#0f1824; --panel:#131f2d; --panel-2:#1a293a; --glass:rgba(19,31,45,.93); --line:#28394d; --ink:#e9eff6; --ink-2:#b0bdcd; --ink-3:#8796ab;
+  --bar:#070e18; --bar-ink:#e9eff6; --bar-ink-2:#8796ab;
+  --accent:#4cb7aa; --accent-2:#6fd3c5; --accent-ink:#06120f; --accent-soft:#163633; --gold:#e3a54a;
+  --hub:#f3f6fa; --ring:#0b121b; --station:#e0602c; --corridor:#e87ba4; --van:#2cc189;
+  --route:#f3f6fa; --quick:#5598e7; --walk:#b0bdcd; --road:#3f5068; --road-hi:#e66767; --map-bg:#0e1722; --shadow:0 10px 30px rgba(0,0,0,.35); color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+a{color:var(--accent)}
+.container{max-width:1360px;margin:0 auto;padding-inline:24px}
+h1,h2,h3{font-family:var(--f-display);font-stretch:88%;margin:0;text-wrap:balance;font-weight:700;letter-spacing:-.01em}
+h1{font-size:clamp(34px,4.8vw,58px);line-height:1.04;letter-spacing:-.015em}
+h2{font-size:clamp(26px,3vw,36px);line-height:1.12}
+h3{font-size:19px;line-height:1.25}
+.eyebrow{font:600 14px/1.2 var(--f-body);color:var(--accent)}
+.lead{font-size:18px;color:var(--ink-2);max-width:64ch;margin:0}
+.muted{color:var(--ink-2)} .small{font-size:13px}
+.num{font-family:var(--f-body);font-variant-numeric:tabular-nums;font-weight:600}
+button,select,input{font:inherit}
+.btn:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,button:focus-visible,.map:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ===== top bar ===== */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:1500;background:var(--bar);color:var(--bar-ink);border-bottom:1px solid rgba(255,255,255,.06)}
+.topbar .container{display:flex;align-items:center;gap:20px;min-height:66px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;text-align:left;color:var(--bar-ink);background:none;border:0;cursor:pointer;padding:6px 0}
+.brand .mark{width:34px;height:34px;border-radius:6px;background:var(--accent);display:grid;place-items:center}
+.brand .word{font:800 23px/1 var(--f-display);font-stretch:92%;letter-spacing:.01em}
+.brand .deva{font:700 17px/1 var(--f-deva);color:var(--accent-2);margin-left:8px}
+.brand .team{display:block;font:500 11px/1.35 var(--f-body);color:var(--bar-ink-2);letter-spacing:.02em;margin-top:4px}
+nav.main{margin-left:auto;display:flex;gap:2px;align-items:stretch}
+nav.main > button,.dd > button{background:none;border:0;border-bottom:3px solid transparent;color:var(--bar-ink-2);font:600 15px var(--f-body);padding:22px 14px 19px;cursor:pointer;display:flex;align-items:center;gap:6px}
+nav.main > button:hover,.dd > button:hover{color:var(--bar-ink)}
+nav.main [aria-current="page"]{color:var(--bar-ink);border-bottom-color:var(--accent-2)}
+.dd{position:relative;display:flex}
+.menu{position:absolute;right:0;top:100%;width:340px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:0 18px 44px rgba(10,20,35,.28);padding:10px;display:flex;flex-direction:column;gap:4px;animation:pop .14s ease-out}
+@keyframes pop{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.mi{display:grid;grid-template-columns:40px 1fr;gap:12px;align-items:start;text-align:left;background:none;border:0;border-radius:8px;padding:10px;cursor:pointer;color:var(--ink)}
+.mi:hover,.mi:focus-visible{background:var(--panel-2)}
+.mi .ic{width:40px;height:40px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
+.mi b{display:block;font:600 15px var(--f-body)} .mi span{font:400 13px var(--f-body);color:var(--ink-2)}
+.mi-sub{display:flex;flex-wrap:wrap;gap:6px;padding:0 10px 8px 62px}
+.mi-sub button{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:3px 10px;font:500 12.5px var(--f-body);color:var(--ink-2);cursor:pointer}
+.mi-sub button:hover{border-color:var(--accent);color:var(--ink)}
+@media (max-width:820px){.topbar .container{gap:0}.brand .team{display:none}nav.main{margin-left:0;width:100%;justify-content:space-between}nav.main > button,.dd > button{padding:12px 8px 10px}.menu{right:auto;left:-120px;width:300px}}
+
+.page{animation:fadeIn .28s ease-out}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ===== hero ===== */
+.hero{position:relative;background:var(--bar);color:var(--bar-ink);overflow:hidden;min-height:560px}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hero .shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(12,29,53,.96) 0%,rgba(12,29,53,.82) 38%,rgba(12,29,53,.15) 70%,rgba(12,29,53,0) 100%)}
+.hero .container{position:relative;padding-block:84px 72px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px}
+.hero h1{color:#fff}
+.hero .word{font:800 clamp(64px,9vw,120px)/0.9 var(--f-display);font-stretch:85%;letter-spacing:-.01em;color:#fff;margin:10px 0 0}
+.hero .deva{font:700 clamp(26px,3vw,38px)/1.2 var(--f-deva);color:var(--accent-2);margin:6px 0 18px}
+.hero .lead{color:#c7d3e2}
+.hero .team{margin-top:22px;font-size:14px;color:#c7d3e2;border-left:2px solid var(--accent-2);padding-left:12px}
+.hero .team b{color:#fff;font-weight:600}
+.hero .cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}
+.hero .live{position:absolute;right:24px;bottom:18px;font:500 13px var(--f-body);color:#9fb0c7;display:flex;align-items:center;gap:8px}
+.hero .live i{width:8px;height:8px;border-radius:50%;background:var(--accent-2);box-shadow:0 0 0 0 rgba(111,211,197,.6);animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(111,211,197,.6)}70%{box-shadow:0 0 0 10px rgba(111,211,197,0)}100%{box-shadow:0 0 0 0 rgba(111,211,197,0)}}
+@media (max-width:900px){.hero .container{grid-template-columns:minmax(0,1fr)}.hero .shade{background:rgba(12,29,53,.78)}}
+.btn{display:inline-flex;align-items:center;gap:8px;font:600 15px var(--f-body);padding:10px 18px;border-radius:6px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;text-decoration:none;transition:transform .12s,box-shadow .12s}
+.btn:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent;border-color:rgba(255,255,255,.3);color:#fff}
+.btn.sm{padding:6px 11px;font-size:13px;border-radius:6px}
+.btn[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);color:var(--ink)}
+
+section.band{padding-block:64px}
+section.band.alt{background:var(--bg-alt)}
+.sec-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:28px;align-items:end;margin-bottom:28px}
+.sec-head p{margin:0;color:var(--ink-2)}
+@media (max-width:900px){.sec-head{grid-template-columns:minmax(0,1fr)}}
+.grid{display:grid;gap:18px}
+.g4{grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:22px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card p{margin:0;color:var(--ink-2);font-size:14.5px}
+.card .k{font:600 13px var(--f-body);color:var(--accent)}
+.ico{width:36px;height:36px;display:grid;place-items:start;color:var(--accent)}
+.feature{cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s}
+.feature:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--accent)}
+.feature .go{font:600 14.5px var(--f-body);color:var(--accent);margin-top:auto;text-decoration:underline;text-underline-offset:3px}
+.flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;position:relative}
+.flow .st{padding:0 18px 0 0;position:relative}
+.flow .st .dot{width:48px;height:48px;border-radius:50%;background:var(--panel);border:1.5px solid var(--accent);display:grid;place-items:center;color:var(--accent);position:relative;z-index:1}
+.flow .st::before{content:"";position:absolute;left:52px;right:0;top:26px;height:2px;background:linear-gradient(90deg,var(--accent),transparent)}
+.flow .st:last-child::before{display:none}
+.flow h3{margin:14px 0 6px}
+.flow p{margin:0;color:var(--ink-2);font-size:14.5px}
+@media (max-width:860px){.flow{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:28px}.flow .st::before{display:none}}
+.team-card{display:flex;align-items:center;gap:14px}
+.avatar{width:52px;height:52px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font:700 19px var(--f-display);flex:none}
+
+/* ===== page header & subnav ===== */
+.phead{background:var(--bar);color:var(--bar-ink);padding-block:36px 0}
+.phead .crumbs{font:500 13px var(--f-body);color:var(--bar-ink-2);margin-bottom:10px}
+.phead .crumbs button{background:none;border:0;padding:0;color:var(--accent-2);cursor:pointer}
+.phead h1{color:#fff;font-size:clamp(30px,3.6vw,44px)}
+.phead p{margin:10px 0 0;color:#c7d3e2;max-width:72ch}
+.subnav{display:flex;gap:6px;margin-top:24px;overflow-x:auto;scrollbar-width:none;padding-bottom:0}
+.subnav::-webkit-scrollbar{display:none}
+.subnav button{display:flex;align-items:center;gap:8px;background:transparent;border:0;border-radius:10px 10px 0 0;padding:12px 18px;font:600 14.5px var(--f-body);color:var(--bar-ink-2);cursor:pointer;white-space:nowrap}
+.subnav button svg{opacity:.8}
+.subnav button:hover{color:#fff}
+.subnav button[aria-selected="true"]{background:var(--bg);color:var(--ink)}
+.subnav button[aria-selected="true"] svg{color:var(--accent);opacity:1}
+.pbody{padding-block:26px 56px}
+
+/* ===== workspace ===== */
+.ws{position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);background:var(--map-bg)}
+.map{height:clamp(520px,76vh,800px);background:var(--map-bg)}
+.leaflet-container{background:var(--map-bg);font-family:var(--f-body)}
+.float{position:absolute;z-index:700;background:var(--glass);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow)}
+.console{top:14px;right:14px;bottom:14px;width:360px;display:flex;flex-direction:column;min-height:0}
+.console .head{padding:14px 16px 10px;border-bottom:1px solid var(--line)}
+.console .head h3{font-size:18px}
+.console .body{padding:14px 16px;display:flex;flex-direction:column;gap:14px;overflow:auto;min-height:0;flex:1}
+.legend{left:14px;bottom:14px;padding:10px 12px;max-width:250px;font-size:12px}
+.chips-float{left:14px;top:14px;right:390px;display:flex;gap:6px;flex-wrap:wrap;padding:8px;border-radius:12px}
+.status{top:14px;left:50%;transform:translateX(-50%);padding:6px 14px;border-radius:999px;font-size:12.5px;color:var(--ink-2);display:flex;gap:8px;align-items:center}
+.status i{width:10px;height:10px;border-radius:50%;border:2px solid var(--accent);border-top-color:transparent;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (max-width:1000px){.ws{overflow:visible;border-radius:16px}.console{position:static;width:auto;margin:12px;max-height:none}.legend{display:none}.chips-float{position:static;margin:12px 12px 0}.map{border-radius:16px 16px 0 0}}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);color:var(--ink-2);border-radius:6px;padding:5px 11px;font:500 13.5px var(--f-body);cursor:pointer;white-space:nowrap}
+.chip .sw{width:10px;height:10px;border-radius:3px}
+.chip:hover{color:var(--ink);border-color:var(--ink-3)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label,.flabel{font-size:13px;color:var(--ink-2);display:flex;justify-content:space-between;gap:8px;font-weight:600}
+.field label .num,.flabel .num{color:var(--ink);font-weight:500}
+select{color:var(--ink);background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;font-size:14px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.toggles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tg{display:flex;align-items:center;gap:8px;font-size:13.5px;cursor:pointer}
+.tg input{accent-color:var(--accent);width:16px;height:16px}
+.btns{display:flex;flex-wrap:wrap;gap:6px}
+.note{font-size:13px;color:var(--ink-2);background:var(--panel-2);border-radius:10px;padding:10px 12px;margin:0}
+.seg{display:flex;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:3px;gap:3px}
+.seg button{flex:1;background:transparent;border:0;border-radius:7px;padding:7px 6px;font:600 13px var(--f-body);color:var(--ink-2);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.ab{display:grid;grid-template-columns:28px 1fr 34px;gap:8px;align-items:center}
+.ab .dot{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 12px var(--f-body);color:#fff}
+.swap{grid-row:1/3;grid-column:3;align-self:center;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--panel);display:grid;place-items:center;cursor:pointer;color:var(--ink-2)}
+.swap:hover{color:var(--accent);border-color:var(--accent)}
+.hint{font-size:12.5px;color:var(--ink-3);margin:0}
+.sw{width:12px;height:12px;border-radius:3px;flex:none;display:inline-block}
+.legend .row{display:flex;align-items:center;gap:7px;margin-top:4px}
+.legend .ramp{height:9px;border-radius:3px;margin:6px 0 3px}
+.legend .ends{display:flex;justify-content:space-between;color:var(--ink-3);font-size:11px}
+.legend b{font-size:12.5px}
+.place{font-family:var(--f-body);font-weight:500;font-size:11.5px;color:var(--ink-2);white-space:nowrap;text-shadow:0 0 3px var(--map-bg),0 0 3px var(--map-bg)}
+.bar{height:7px;background:var(--panel-2);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:4px;transition:width .4s ease}
+.idx{display:grid;grid-template-columns:118px 1fr 74px;gap:8px;align-items:center;font-size:13px}
+.lvl{font:500 12.5px var(--f-body);color:var(--ink-2);text-align:right}
+@media (min-width:1001px){.ws .leaflet-right{right:380px}}
+.pill{display:inline-flex;align-items:center;gap:5px;font:500 12.5px var(--f-body);padding:2px 9px;border-radius:4px;background:var(--panel-2);color:var(--ink-2)}
+.pill.g{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--ink)}
+.pill.w{background:color-mix(in srgb,var(--warn) 24%,transparent);color:var(--ink)}
+.pill.b{background:color-mix(in srgb,var(--bad) 18%,transparent);color:var(--ink)}
+
+/* route option cards */
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opt{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--panel);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px;color:var(--ink)}
+.opt[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+.opt .t{font:600 13px var(--f-body);color:var(--ink-2);display:flex;align-items:center;gap:6px}
+.opt .v{font:700 26px/1.1 var(--f-display);font-stretch:90%}
+.opt .s{font-size:12.5px;color:var(--ink-2)}
+.fare{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.fare .amt{font:800 44px/1 var(--f-display);font-stretch:88%}
+.legs{list-style:none;margin:0 0 0 7px;padding:0;border-left:2px dashed var(--line)}
+.legs li{position:relative;padding:3px 0 12px 18px;font-size:13.5px}
+.legs li::before{content:"";position:absolute;left:-8px;top:6px;width:14px;height:14px;border-radius:50%;background:var(--panel);border:2px solid var(--ink-3)}
+.legs li.ride::before{background:var(--accent);border-color:var(--accent)}
+.legs li.end::before{background:var(--gold);border-color:var(--gold)}
+.legs li b{display:block;font-weight:600}
+.legs li span{color:var(--ink-2)}
+.cmpbars{display:flex;flex-direction:column;gap:8px}
+.cb{display:grid;grid-template-columns:86px 1fr 92px;gap:8px;align-items:center;font-size:13px}
+.cb .tr{height:10px;background:var(--panel-2);border-radius:5px;overflow:hidden}
+.cb .tr i{display:block;height:100%;border-radius:5px;transition:width .5s ease}
+.cb .v{font-family:var(--f-body);font-variant-numeric:tabular-nums;font-size:13px;text-align:right;color:var(--ink-2)}
+.profile{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--panel-2)}
+.profile i{display:block;height:100%}
+.facs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px}
+.fac{display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s}
+.fac:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--accent)}
+.fac .top{display:flex;align-items:center;gap:10px}
+.fac .top .ico{width:40px;height:40px}
+.fac .meta{display:flex;gap:14px;font-size:13px;color:var(--ink-2);flex-wrap:wrap}
+.fac .meta b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{font:600 13px var(--f-body);color:var(--ink-3);text-align:left;border-bottom:1px solid var(--line);padding:9px 10px}
+td{padding:10px;border-bottom:1px solid var(--line)}
+.phase{border-top:4px solid var(--accent)}
+.phase ul{margin:0;padding-left:18px;color:var(--ink-2);font-size:14.5px;display:flex;flex-direction:column;gap:6px}
+footer.site{background:var(--bar);color:var(--bar-ink-2);padding-block:34px;font-size:13.5px}
+footer.site .container{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:center}
+footer.site b{color:#fff;font:800 20px var(--f-display);font-stretch:92%}
+.leaflet-tooltip{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,.15);font-family:var(--f-body);font-size:12.5px;padding:6px 9px}
+.leaflet-tooltip-top:before{border-top-color:var(--panel)}
+.leaflet-bar{border:1px solid var(--line)!important;border-radius:10px!important;overflow:hidden;box-shadow:var(--shadow)!important}
+.leaflet-bar a{background:var(--panel);color:var(--ink);border-bottom-color:var(--line)}
+.leaflet-control-attribution{background:color-mix(in srgb,var(--panel) 80%,transparent)!important;color:var(--ink-3)!important}
+.pin{width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid var(--ring);display:grid;place-items:center;box-shadow:0 4px 10px rgba(0,0,0,.3)}
+.pin span{transform:rotate(45deg);font:700 13px var(--f-body);color:#fff}
+.roadcanvas{position:absolute;left:0;top:0;pointer-events:none}
+.draw{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.1s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.hubpop{animation:hp .35s ease-out both}
+@keyframes hp{from{opacity:0;transform:scale(.2)}to{opacity:1;transform:scale(1)}}
+.radar text{fill:var(--ink-2);font:600 10.5px var(--f-body)}
+</style>
+
+<header class="topbar">
+  <div class="container">
+    <button class="brand" data-nav="home" aria-label="DRISHTI home"><span class="mark"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z" fill="none" stroke="#fff" stroke-width="1.8"/><circle cx="12" cy="12" r="3.2" fill="none" stroke="#fff" stroke-width="1.8"/><circle cx="12" cy="12" r="1.1" fill="#fff"/></svg></span>
+      <span><span class="word">DRISHTI</span><span class="deva" lang="hi">दृष्टि</span><span class="team">Mudit Verma · J L Sriniketh · Suprava Mishra — IIT (BHU) SUPREME</span></span></button>
+    <nav class="main" aria-label="Main">
+      <button data-nav="home" id="nav-home">Home</button>
+      <button data-nav="about" id="nav-about">About</button>
+      <div class="dd">
+        <button id="nav-fac" aria-haspopup="true" aria-expanded="false">Facilities <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3 L5 7 L9 3" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+        <div class="menu" id="facmenu" hidden>
+          <button class="mi" data-nav="planner/locations"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z M9 3v15 M15 6v15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span><b>Planner</b><span>For service providers and city agencies</span></span></button>
+          <div class="mi-sub"><button data-nav="planner/locations">Suitable locations</button><button data-nav="planner/roads">Road network &amp; routes</button><button data-nav="planner/battery">Battery &amp; stations</button><button data-nav="planner/rollout">Roll-out</button></div>
+          <button class="mi" data-nav="user"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="17" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="17" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 17 L10 9 H14 M10 9 L18 17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span><b>User</b><span>Plan a journey and find your nearest facilities</span></span></button>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+<!-- ========== HOME ========== -->
+<div class="page" id="pg-home">
+  <section class="hero">
+    <canvas id="herocv" aria-hidden="true"></canvas><div class="shade"></div>
+    <div class="container">
+      <div>
+        <div class="eyebrow" style="color:var(--accent-2)">E-micromobility planning for Delhi</div>
+        <div class="word">DRISHTI</div><div class="deva" lang="hi">दृष्टि</div>
+        <h1 style="font-family:var(--f-body);font-size:clamp(21px,2.2vw,27px);font-weight:500;line-height:1.35;letter-spacing:0">Where shared e-bikes should go, how riders move between them, and what each trip costs.</h1>
+        <p class="lead" style="margin-top:16px">A planning and journey platform for e-micromobility. It places hubs and battery-swap stations, routes riders on calm streets of the real road network, and helps people reach everyday places.</p>
+        <div class="cta"><button class="btn primary" data-nav="planner/locations">Open the Planner</button><button class="btn ghost" data-nav="user">Plan a journey</button></div>
+        <div class="team">Developed by <b>Mudit Verma</b>, <b>J L Sriniketh</b> and <b>Suprava Mishra</b><br>IIT (BHU) SUPREME</div>
+      </div>
+      <div></div>
+    </div>
+    <div class="live"><i></i><span id="herolive">Loading road network…</span></div>
+  </section>
+  <section class="band"><div class="container">
+    <div class="sec-head"><div><div class="eyebrow">Facilities</div><h2 style="margin-top:8px">One platform, two workspaces</h2></div><p>Planners decide where the network goes and how it runs. Riders use the same network to plan a trip and find what is nearby.</p></div>
+    <div class="grid g4">
+      <div class="card feature" data-nav="planner/locations" tabindex="0"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c-4 0-7 3-7 7 0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="9" r="2.5" fill="currentColor"/></svg></div><span class="k">Planner</span><h3>Suitable locations</h3><p>Score every neighbourhood, place hubs with an exact optimisation, and test how stable the plan is.</p><span class="go">Open</span></div>
+      <div class="card feature" data-nav="planner/roads" tabindex="0"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20 L9 4 M20 20 L15 4 M12 6v2 M12 11v2 M12 16v2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div><span class="k">Planner</span><h3>Road network &amp; routes</h3><p>Design routes on the real road network, compare calm and shortest paths, and see where protected lanes matter.</p><span class="go">Open</span></div>
+      <div class="card feature" data-nav="planner/battery" tabindex="0"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="16" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M21 10v4 M10 9l-2 4h4l-2 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div><span class="k">Planner</span><h3>Battery &amp; stations</h3><p>Inspect each swap station, its charging needs and the van loop that keeps it stocked.</p><span class="go">Open</span></div>
+      <div class="card feature" data-nav="user" tabindex="0"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="17" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="17" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 17 L10 9 H14 M10 9 L18 17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div><span class="k">User</span><h3>Journey planner</h3><p>Drag a start and an end point to get the route, time, distance and fare, plus your nearest facilities.</p><span class="go">Open</span></div>
+    </div>
+  </div></section>
+</div>
+
+<!-- ========== ABOUT ========== -->
+<div class="page" id="pg-about" hidden>
+  <section class="phead"><div class="container" style="padding-bottom:40px">
+    <div class="crumbs"><button data-nav="home">Home</button> / About</div>
+    <h1>About DRISHTI</h1>
+    <p>Why shared e-micromobility struggles to take off, and how DRISHTI helps planners and riders close the gap.</p>
+  </div></section>
+  <section class="band"><div class="container">
+    <div class="sec-head"><div><div class="eyebrow">The challenge</div><h2 style="margin-top:8px">Demand and safe, serviced supply do not meet</h2></div><p>Short trips are most common in dense neighbourhoods. Those are also the places with the least shared service, the least safe riding space and the busiest traffic.</p></div>
+    <div class="grid g4" id="gaps"></div>
+  </div></section>
+  <section class="band alt"><div class="container">
+    <div class="sec-head"><div><div class="eyebrow">Research question</div><h2 style="margin-top:8px">What DRISHTI sets out to answer</h2></div><p></p></div>
+    <div class="card" style="font-family:var(--f-display);font-size:clamp(19px,2vw,24px);line-height:1.45;padding:30px 32px;border-left:4px solid var(--accent)">How should a shared e-micromobility service provider locate its hubs, battery-swap stations and riding corridors to capture the most short-trip demand that is safe and practical to serve?</div>
+  </div></section>
+  <section class="band"><div class="container">
+    <div class="sec-head"><div><div class="eyebrow">How it works</div><h2 style="margin-top:8px">Locate, connect, power, ride</h2></div><p>Each workspace in DRISHTI builds on the one before it.</p></div>
+    <div class="flow">
+      <div class="st"><div class="dot"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c-4 0-7 3-7 7 0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="9" r="2.5" fill="currentColor"/></svg></div><h3>Locate</h3><p>Neighbourhoods are scored on demand, access, safety and need. An optimisation places hubs where they serve the most people by road.</p></div>
+      <div class="st"><div class="dot"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20 L9 4 M20 20 L15 4 M12 6v2 M12 11v2 M12 16v2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div><h3>Connect</h3><p>Hubs are linked by calm routes on the real road network that avoid high-stress and arterial roads.</p></div>
+      <div class="st"><div class="dot"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="16" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M21 10v4 M10 9l-2 4h4l-2 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div><h3>Power</h3><p>Battery-swap stations are sited for the hubs they serve, with charging needs and van loops sized together.</p></div>
+      <div class="st"><div class="dot"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="17" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="17" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 17 L10 9 H14 M10 9 L18 17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div><h3>Ride</h3><p>Riders plan door-to-door journeys: walk to a hub, ride the calm route, and walk to the destination.</p></div>
+    </div>
+  </div></section>
+  <section class="band alt"><div class="container">
+    <div class="sec-head"><div><div class="eyebrow">Team</div><h2 style="margin-top:8px">Developed at IIT (BHU)</h2></div><p>DRISHTI is developed at IIT (BHU) SUPREME.</p></div>
+    <div class="grid g3">
+      <div class="card team-card"><div class="avatar">MV</div><div><h3>Mudit Verma</h3><p>IIT (BHU) SUPREME</p></div></div>
+      <div class="card team-card"><div class="avatar">JS</div><div><h3>J L Sriniketh</h3><p>IIT (BHU) SUPREME</p></div></div>
+      <div class="card team-card"><div class="avatar">SM</div><div><h3>Suprava Mishra</h3><p>IIT (BHU) SUPREME</p></div></div>
+    </div>
+  </div></section>
+</div>
+
+<!-- ========== PLANNER ========== -->
+<div class="page" id="pg-planner" hidden>
+  <section class="phead"><div class="container">
+    <div class="crumbs"><button data-nav="home">Home</button> / Facilities / Planner</div>
+    <h1>Planner</h1>
+    <p>Where to put hubs, how riders move on the road network, and what the battery operation needs.</p>
+    <div class="subnav" role="tablist" id="subnav">
+      <button role="tab" data-sub="locations"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c-4 0-7 3-7 7 0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z" fill="none" stroke="currentColor" stroke-width="2"/></svg>Suitable locations</button>
+      <button role="tab" data-sub="roads"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20 L9 4 M20 20 L15 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Road network &amp; routes</button>
+      <button role="tab" data-sub="battery"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="16" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/></svg>Battery &amp; stations</button>
+      <button role="tab" data-sub="rollout"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10 M10 20V4 M16 20v-7 M22 20H2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Roll-out</button>
+    </div>
+  </div></section>
+
+  <section class="container pbody sp" id="sp-locations">
+    <div class="ws">
+      <div id="map" class="map" tabindex="0" role="region" aria-label="Suitability map"></div>
+      <div class="float chips-float" id="layerchips" role="group" aria-label="Map surface"></div>
+      <div class="float legend" id="legend"></div>
+      <aside class="float console">
+        <div class="head"><div class="seg" id="locmode"><button aria-pressed="true" data-m="opt">Optimise</button><button aria-pressed="false" data-m="ins">Inspect</button></div></div>
+        <div class="body" id="loc-opt">
+          <div><h3>Hub network</h3><p class="hint" style="margin-top:4px">Pick a scenario or set your own weights, then place hubs. Hover a hub to see the area it serves.</p></div>
+          <div class="btns" id="presets"></div>
+          <div id="wsl" style="display:flex;flex-direction:column;gap:10px"></div>
+          <div class="field"><label for="p">Number of hubs <span class="num" id="pv"></span></label><input type="range" id="p" min="20" max="250" step="1"></div>
+          <div class="btns"><button class="btn primary sm" id="run">Place hubs</button><button class="btn sm" id="reset">Restore optimum</button></div>
+          <label class="tg"><input type="checkbox" id="cmp"> Compare with another scenario</label>
+          <div class="field" id="cmpfield" hidden><select id="cmpsel"></select></div>
+          <p class="note" id="optmsg">Showing the exact optimum for the balanced scenario.</p>
+          <div class="toggles"><label class="tg"><input type="checkbox" id="o-hubs" checked> Hubs</label><label class="tg"><input type="checkbox" id="o-st" checked> Swap stations</label><label class="tg"><input type="checkbox" id="o-inel"> Fade unsuitable</label></div>
+        </div>
+        <div class="body" id="loc-ins" hidden><p class="note" id="ins-empty">Click any neighbourhood, hub or swap station on the map.</p><div id="ins" style="display:flex;flex-direction:column;gap:12px"></div></div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="container pbody sp" id="sp-roads" hidden>
+    <div class="ws">
+      <div id="rmap" class="map" tabindex="0" role="region" aria-label="Road network map"></div>
+      <div class="float status" data-roadstatus><i></i>Loading road network…</div>
+      <div class="float chips-float" id="roadchips" role="group" aria-label="Road layers"></div>
+      <div class="float legend" id="rlegend"></div>
+      <aside class="float console">
+        <div class="head"><h3>Route designer</h3><p class="hint" style="margin-top:4px">Drag the A and B pins, pick places, or click the map.</p></div>
+        <div class="body">
+          <div class="ab"><span class="dot" style="background:var(--accent)">A</span><select id="ra" aria-label="Point A"></select><button class="swap" id="rswap" title="Swap A and B" aria-label="Swap A and B"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v14 M3 14l4 4 4-4 M17 20V6 M13 10l4-4 4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+            <span class="dot" style="background:var(--gold)">B</span><select id="rb" aria-label="Point B"></select></div>
+          <div class="field"><label for="rlam">Stress avoidance <span class="num" id="rlamv"></span></label><input type="range" id="rlam" min="0.5" max="4" step="0.5"></div>
+          <div id="rout" style="display:flex;flex-direction:column;gap:12px"></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="container pbody sp" id="sp-battery" hidden>
+    <div class="ws">
+      <div id="bmap" class="map" tabindex="0" role="region" aria-label="Battery map"></div>
+      <div class="float status" data-roadstatus><i></i>Loading road network…</div>
+      <div class="float legend" id="blegend"></div>
+      <aside class="float console">
+        <div class="head"><h3>Battery operations</h3><p class="hint" style="margin-top:4px">Click a swap station to see what it serves, its charging needs and its van loop.</p></div>
+        <div class="body">
+          <div id="stpanel"><p class="note">No station selected.</p></div>
+          <details><summary style="cursor:pointer;font-weight:600;font-size:13.5px">Vehicle and battery assumptions</summary>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px">
+              <div class="field"><label for="bk">Battery pack (kWh) <span class="num" id="bkv"></span></label><input type="range" id="bk" min="0.5" max="2" step="0.1"></div>
+              <div class="field"><label for="wh">Energy use (Wh/km) <span class="num" id="whv"></span></label><input type="range" id="wh" min="12" max="40" step="1"></div>
+              <div class="field"><label for="tk">Mean trip length (km) <span class="num" id="tkv"></span></label><input type="range" id="tk" min="1" max="6" step="0.1"></div>
+              <div class="field"><label for="dod">Swap threshold (usable share) <span class="num" id="dodv"></span></label><input type="range" id="dod" min="0.5" max="0.95" step="0.05"></div>
+              <div class="field"><label for="cap">Station capacity (swaps/day) <span class="num" id="capv"></span></label><input type="range" id="cap" min="100" max="800" step="25"></div>
+              <div class="field"><label for="adopt">Adoption scenario <span class="num" id="av"></span></label><input type="range" id="adopt" min="0.1" max="3" step="0.1"></div>
+            </div></details>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="container pbody sp" id="sp-rollout" hidden>
+    <div class="sec-head" style="margin-top:12px"><div><h2>Phased deployment</h2></div><p>Start where the plan is most stable, learn from real trips, then extend coverage to underserved areas.</p></div>
+    <div class="grid g4" id="phases"></div>
+    <div class="card" style="margin-top:20px"><h3>Indicators to monitor</h3><div class="tbl"><table id="kpitbl"></table></div></div>
+  </section>
+</div>
+
+<!-- ========== USER ========== -->
+<div class="page" id="pg-user" hidden>
+  <section class="phead"><div class="container" style="padding-bottom:32px">
+    <div class="crumbs"><button data-nav="home">Home</button> / Facilities / User</div>
+    <h1>Journey planner</h1>
+    <p>Drag the A and B pins or pick places. DRISHTI walks you to the nearest hub, rides the calm route and walks you to the door.</p>
+  </div></section>
+  <section class="container pbody">
+    <div class="ws">
+      <div id="umap" class="map" tabindex="0" role="region" aria-label="Journey map"></div>
+      <div class="float status" data-roadstatus><i></i>Loading road network…</div>
+      <div class="float legend" id="ulegend"></div>
+      <aside class="float console">
+        <div class="head">
+          <div class="ab"><span class="dot" style="background:var(--accent)">A</span><select id="ua" aria-label="From"></select><button class="swap" id="uswap" title="Swap start and destination" aria-label="Swap start and destination"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v14 M3 14l4 4 4-4 M17 20V6 M13 10l4-4 4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+            <span class="dot" style="background:var(--gold)">B</span><select id="ub" aria-label="To"></select></div>
+        </div>
+        <div class="body">
+          <div class="seg" id="utab"><button aria-pressed="true" data-t="trip">Journey</button><button aria-pressed="false" data-t="fare">Fares &amp; speed</button></div>
+          <div id="u-trip" style="display:flex;flex-direction:column;gap:12px"></div>
+          <div id="u-fare" hidden style="display:flex;flex-direction:column;gap:10px">
+            <p class="note">Tariffs are planning values. Set them to your own pricing.</p>
+            <div class="field"><label for="unlock">Unlock fee (₹) <span class="num" id="unlockv"></span></label><input type="range" id="unlock" min="0" max="30" step="1"></div>
+            <div class="field"><label for="permin">Ride charge (₹ per minute) <span class="num" id="perminv"></span></label><input type="range" id="permin" min="0.5" max="5" step="0.1"></div>
+            <div class="field"><label for="speed">E-bike average speed (km/h) <span class="num" id="speedv"></span></label><input type="range" id="speed" min="8" max="25" step="1"></div>
+            <div class="field"><label for="autob">Auto-rickshaw base fare, first 1.5 km (₹) <span class="num" id="autobv"></span></label><input type="range" id="autob" min="20" max="60" step="1"></div>
+            <div class="field"><label for="autok">Auto-rickshaw per km after 1.5 km (₹) <span class="num" id="autokv"></span></label><input type="range" id="autok" min="5" max="25" step="0.5"></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+    <div style="margin-top:30px">
+      <div class="sec-head" style="margin-bottom:18px"><div><div class="eyebrow">Near point A</div><h2 style="margin-top:6px">Your nearest facilities</h2></div><p>Measured along the road network from your start point. Pick a card to route there.</p></div>
+      <div class="facs" id="facs"></div>
+    </div>
+  </section>
+</div>
+</main>
+
+<footer class="site"><div class="container">
+  <div><b>DRISHTI</b><div style="margin-top:6px">E-micromobility planning and journey platform</div></div>
+  <div style="text-align:right">Mudit Verma · J L Sriniketh · Suprava Mishra<br>IIT (BHU) SUPREME<div style="margin-top:8px;font-size:12px;opacity:.75">Road network © OpenStreetMap contributors (ODbL)</div></div>
+</div></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+const M = /*__DATA__*/null;
+const ROADS_B64 = "/*__ROADS__*/";
+(function(){
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const C=M.cells,n=C.length,P0=M.params;
+C.forEach((c,i)=>{c.i=i;c.nbd_={};c.nb.forEach((j,k)=>c.nbd_[j]=c.nbd[k])});
+const fmt=(v,d=0)=>Number(v).toLocaleString('en-IN',{maximumFractionDigits:d,minimumFractionDigits:d});
+const rs=v=>'₹'+fmt(v,0);
+const kmf=m=>m<1000?fmt(Math.round(m/10)*10)+' m':(m/1000).toFixed(1)+' km';
+const minf=v=>v<60?Math.max(1,Math.round(v))+' min':Math.floor(v/60)+' h '+Math.round(v%60)+' min';
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const isDark=()=>{const t=document.documentElement.getAttribute('data-theme');if(t)return t==='dark';return matchMedia('(prefers-color-scheme: dark)').matches};
+const reduced=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+const BLUE_L=['#dbe9fb','#c3daf8','#a9cbf5','#8dbaf0','#6da7ec','#5598e7','#3987e5','#2a78d6','#256abf','#1c5cab','#184f95','#104281','#0d366b'];
+const BLUE_D=['#142336','#172d46','#1b3857','#1d466f','#1f5590','#2564ad','#2a78d6','#3987e5','#5598e7','#6da7ec','#86b6ef','#9ec5f4','#cde2fb'];
+const ORNG_L=['#fde3d6','#fbcbb4','#f7b291','#f3986f','#ee7e4e','#eb6834','#cf5524','#ad451b','#8a3714'];
+const ORNG_D=['#3a1f14','#56291a','#73331f','#933e23','#b34a27','#d95926','#e7774c','#f09a78','#f6bea6'];
+const ramp=(a,v)=>{v=Math.max(0,Math.min(1,v));return a[Math.min(a.length-1,Math.floor(v*a.length))]};
+const band=v=>v>=0.8?'Very high':v>=0.6?'High':v>=0.4?'Moderate':v>=0.2?'Low':'Very low';
+const PLACES=[['Connaught Place',28.6315,77.2167],['IGI Airport',28.5562,77.1000],['Dwarka',28.5921,77.0460],['Rohini',28.7495,77.0565],['Saket',28.5245,77.2066],['Narela',28.8527,77.0929],['Mayur Vihar',28.6090,77.2950],['Okhla',28.5355,77.2732],['Karol Bagh',28.6519,77.1909],['Shahdara',28.6731,77.2894],['Najafgarh',28.6090,76.9798],['Chhatarpur',28.4996,77.1790],['Lajpat Nagar',28.5677,77.2433],['Janakpuri',28.6219,77.0878],['Pitampura',28.7033,77.1310],['Laxmi Nagar',28.6304,77.2777]];
+const CLS=['Trunk','Primary','Secondary','Tertiary','Unclassified','Residential','Living street','Service'];
+const CLF=[1.8,1.4,1.15,1.05,1,1,1,1.1];
+function hav(la1,lo1,la2,lo2){const t=Math.PI/180;const x=Math.sin((la2-la1)*t/2)**2+Math.cos(la1*t)*Math.cos(la2*t)*Math.sin((lo2-lo1)*t/2)**2;return 2*6371000*Math.asin(Math.sqrt(x))}
+const kmC=(a,b)=>hav(a.la,a.lo,b.la,b.lo)/1000;
+function nearPlace(la,lo){let b=null,bd=1e9;PLACES.forEach(p=>{const d=hav(la,lo,p[1],p[2])/1000;if(d<bd){bd=d;b=p[0]}});return bd<1.2?b:(bd<5?'near '+b:bd.toFixed(0)+' km from '+b)}
+const tip={};
+
+/* ===== model ===== */
+const W0=Object.assign({},M.weights);
+const S={w:Object.assign({},W0),p:M.hubs.length,adopt:P0.adoption*100,bk:P0.battery_kwh,wh:P0.wh_per_km,tk:P0.trip_km,dod:P0.usable_dod,cap:P0.station_capacity,hubs:M.hubs.map(h=>h.cell),layer:'S',scen:'Balanced'};
+const T={unlock:10,permin:2,speed:15,autob:30,autok:11,walk:4.5,lam:1.5,minc:10};
+const baseT=C.map(c=>c.t);
+const score=(c,w)=>{const s=w.D+w.A+w.F+w.G+w.E||1;return (w.D*c.D+w.A*c.A+w.F*c.F+w.G*c.G+w.E*c.E)/s};
+const computeS=()=>C.forEach(c=>c.S=score(c,S.w));computeS();
+function greedy(p){const meanT=baseT.reduce((a,b)=>a+b,0)/n;const w=C.map((c,i)=>c.S*baseT[i]/meanT);
+  const cov=new Uint8Array(n),chosen=[];const gain=j=>{let g=0;for(const i of C[j].nb)if(!cov[i])g+=w[i];return g};
+  let heap=C.filter(c=>c.el).map(c=>({j:c.i,g:gain(c.i)})).sort((a,b)=>b.g-a.g);
+  while(chosen.length<p&&heap.length){const top=heap[0],g=gain(top.j);if(heap.length===1||g>=heap[1].g-1e-12){chosen.push(top.j);heap.shift();for(const i of C[top.j].nb)cov[i]=1}else{top.g=g;heap.shift();let k=0;while(k<heap.length&&heap[k].g>g)k++;heap.splice(k,0,top)}}
+  return chosen}
+const ST=M.stations.map(s=>Object.assign({},s));const fixedSt={};M.hubs.forEach(h=>fixedSt[h.cell]=h.station);
+let E={};
+function evaluate(){const f=S.adopt/(P0.adoption*100);const own=new Int32Array(n).fill(-1),od=new Float64Array(n).fill(1e12);
+  S.hubs.forEach(j=>C[j].nb.forEach(i=>{const d=C[j].nbd_[i];if(d<od[i]){od[i]=d;own[i]=j}}));
+  const ht={};S.hubs.forEach(j=>ht[j]=0);C.forEach((c,i)=>{c.tt=baseT[i]*f;if(own[i]>=0)ht[own[i]]+=c.tt;c.own=own[i]});
+  const ePerTrip=S.tk*S.wh/1000,tpc=S.bk*S.dod/ePerTrip;
+  const hubRows=S.hubs.map(j=>({j,t:ht[j],fleet:Math.ceil(ht[j]/P0.trips_per_vehicle),swaps:ht[j]/tpc}));
+  ST.forEach(s=>{s.load=0;s.nh=0;s.hubsNow=[]});
+  hubRows.forEach(h=>{let best=null,bd=1e9;if(fixedSt[h.j]!==undefined)best=ST.find(s=>s.cell===fixedSt[h.j]);else ST.forEach(s=>{const d=kmC(C[h.j],{la:s.lat,lo:s.lon});if(d<bd){bd=d;best=s}});best.load+=h.swaps;best.nh++;best.hubsNow.push(h.j)});
+  ST.forEach(s=>{s.kwh=s.load*S.bk*S.dod/P0.charge_eff;s.util=s.load/S.cap;s.chargers=Math.ceil(s.load*3/20);s.peak=s.kwh/10*1.5;s.stockN=Math.ceil(s.load*3/24*1.8)+10});
+  const tmax=Math.max(...hubRows.map(h=>h.t),1);hubRows.forEach(h=>h.rel=h.t/tmax);
+  E={hubRows,tpc,ePerTrip}}
+
+/* ===== router ===== */
+const inited={};
+function nav(target,push=true){let [page,sub]=target.split('/');if(!['home','about','planner','user'].includes(page))page='home';if(page==='planner'&&!sub)sub='locations';
+  $$('.page').forEach(p=>{const on=p.id==='pg-'+page;if(on&&p.hidden){p.hidden=false;p.style.animation='none';p.offsetHeight;p.style.animation=''}else if(!on)p.hidden=true});
+  $('#nav-home').setAttribute('aria-current',page==='home'?'page':'false');$('#nav-about').setAttribute('aria-current',page==='about'?'page':'false');$('#nav-fac').setAttribute('aria-current',(page==='planner'||page==='user')?'page':'false');
+  if(page==='planner'){$$('#subnav button').forEach(b=>b.setAttribute('aria-selected',b.dataset.sub===sub));$$('.sp').forEach(s=>s.hidden=s.id!=='sp-'+sub)}
+  closeMenu();window.scrollTo(0,0);const key=page==='planner'?'planner-'+sub:page;
+  if(push){try{history.replaceState(null,'','#'+key)}catch(e){}}
+  hero.active=page==='home';if(hero.active){if(hero.pending&&RN)setTimeout(()=>{hero.setup();if(reduced())hero.still()},30);hero.kick()}
+  setTimeout(()=>initView(key),0)}
+function initView(key){
+  if(key==='planner-locations'){if(!inited.loc){inited.loc=1;initLoc()}else locMap.invalidateSize()}
+  if(key==='planner-roads'){if(!inited.roads){inited.roads=1;initRoads()}else rmap.invalidateSize()}
+  if(key==='planner-battery'){if(!inited.bat){inited.bat=1;initBat()}else bmap.invalidateSize()}
+  if(key==='user'){if(!inited.user){inited.user=1;initUser()}else umap.invalidateSize()}}
+const menu=$('#facmenu'),facBtn=$('#nav-fac');
+function closeMenu(){menu.hidden=true;facBtn.setAttribute('aria-expanded','false')}
+facBtn.addEventListener('click',e=>{e.stopPropagation();const open=menu.hidden;menu.hidden=!open;facBtn.setAttribute('aria-expanded',open)});
+document.addEventListener('click',e=>{const t=e.target.closest('[data-nav]');if(t){e.preventDefault();nav(t.dataset.nav);return}if(!e.target.closest('.dd'))closeMenu()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu();if(e.key==='Enter'){const t=e.target.closest&&e.target.closest('.feature[data-nav]');if(t)nav(t.dataset.nav)}});
+$$('#subnav button').forEach(b=>b.addEventListener('click',()=>nav('planner/'+b.dataset.sub)));
+function fromHash(){const h=(location.hash||'').slice(1);if(!h)return 'home';return h.startsWith('planner-')?'planner/'+h.slice(8):h}
+window.addEventListener('hashchange',()=>nav(fromHash(),false));
+
+/* ===== shared map bits ===== */
+function mkMap(id){const m=L.map(id,{preferCanvas:true,zoomSnap:0.25,scrollWheelZoom:false,zoomControl:false});L.control.zoom({position:'bottomright'}).addTo(m);
+  m.attributionControl.remove();
+  const wide=m.getContainer().clientWidth>1000;m.padTL=wide?[40,80]:[20,20];m.padBR=wide?[400,40]:[20,20];m.fitBounds(L.latLngBounds(C.map(c=>[c.la,c.lo])),{paddingTopLeft:wide?[20,60]:[10,10],paddingBottomRight:wide?[390,20]:[10,10]});
+  L.layerGroup(PLACES.map(p=>L.marker([p[1],p[2]],{interactive:false,icon:L.divIcon({className:'place',html:'· '+p[0],iconSize:null})}))).addTo(m);
+  m.on('focus',()=>m.scrollWheelZoom.enable());m.on('blur',()=>m.scrollWheelZoom.disable());m.svgR=L.svg({padding:0.5});return m}
+const stIcon=(sel)=>{const col=css('--station'),rg=css('--ring'),s=sel?24:18;return L.divIcon({className:'',iconSize:[s,s],html:`<div style="width:${s}px;height:${s}px;background:${col};border:2px solid ${rg};border-radius:5px;display:grid;place-items:center;font:700 ${sel?12:10}px/1 sans-serif;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.3)">⚡</div>`})};
+const pinIcon=(l,col)=>L.divIcon({className:'',iconSize:[30,30],iconAnchor:[15,34],html:`<div class="pin" style="background:${col}"><span>${l}</span></div>`});
+const placeOpts=sel=>sel.innerHTML='<option value="">Pin on map</option>'+PLACES.map((p,k)=>`<option value="${k}">${p[0]}</option>`).join('');
+function animLine(map,pts,style){const l=L.polyline(pts,Object.assign({renderer:map.svgR},style));l.addTo(style._layer||map);if(!reduced()){const el=l.getElement&&l.getElement();if(el){el.setAttribute('pathLength','1');el.classList.add('draw')}}return l}
+
+/* ===== about ===== */
+function renderAbout(){const g=[['Service gap','Shared e-bike service is concentrated in a few zones; most busy neighbourhoods have none.','M12 2c-4 0-7 3-7 7 0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z'],
+  ['Safety gap','Many busy areas lack protected lanes, safe crossings or other safety facilities.','M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z'],
+  ['Stress gap','The places with the most short trips also carry the heaviest traffic.','M4 20 L9 4 M20 20 L15 4'],
+  ['Energy gap','E-bikes need frequent battery swaps; without a swap network, service cannot spread.','M3 7h16v10H3z M21 10v4']];
+  $('#gaps').innerHTML=g.map(x=>`<div class="card"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="${x[2]}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3>${x[0]}</h3><p>${x[1]}</p></div>`).join('')}
+function renderRollout(){const ph=[['Phase 1','Pilot',['Open the most stable hubs in the busiest clusters.','Commission the swap stations that serve them.','Rebalance daily with the planned van loops.']],
+  ['Phase 2','Scale',['Add hubs in order of observed use.','Re-run the optimiser with real trip records.','Run small outer stations as partner-hosted cabinets.']],
+  ['Phase 3','Extend',['Use the equity scenario for new hubs.','Pair them with concession passes.','Push protected lanes on priority corridors.']],
+  ['Ongoing','Govern',['Publish service indicators regularly.','Track battery health pack by pack.','Re-test the plan when conditions change.']]];
+  $('#phases').innerHTML=ph.map(p=>`<div class="card phase"><span class="k">${p[0]}</span><h3>${p[1]}</h3><ul>${p[2].map(x=>`<li>${x}</li>`).join('')}</ul></div>`).join('');
+  $('#kpitbl').innerHTML=`<thead><tr><th>Indicator</th><th>Direction</th><th>Why it matters</th></tr></thead><tbody>`+[['Trips per bike per day','Up','Fleet productivity'],['Battery availability at stations','Up','Riders never find an empty bike'],['Station utilisation','Within a healthy band','Too high needs more slots; too low can downsize'],['Riding on low-stress roads','Up','Safety and adoption'],['Incidents per distance ridden','Down','Safety outcome'],['Van distance per trip','Down','Battery logistics cost'],['Fare to reach essential services','Tracked','Affordability'],['Trips from underserved areas','Up','Equity outcome']].map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')+'</tbody>'}
+
+/* ===== PLANNER · LOCATIONS ===== */
+let locMap,polys,hubL,stL,cmpL,zoneL;
+const LAYERS=[['S','Suitability'],['D','Demand'],['A','Access'],['F','Safety & feasibility'],['st','Traffic stress'],['G','Unserved'],['E','Equity need'],['B','Battery'],['cov','Service zones'],['r','Stability']];
+const LI={S:'Overall suitability',D:'Demand potential',A:'Accessibility',F:'Safety & feasibility',st:'Traffic stress',G:'Unserved market',E:'Equity need',B:'Battery & charging feasibility',cov:'Hub service zones',r:'Plan stability across scenarios'};
+const hashCol=j=>['#2a78d6','#1baf7a','#6250d6','#eda100','#e87ba4','#008300','#eb6834','#e34948'][(j*2654435761>>>0)%8];
+function cellColor(c){const dk=isDark(),B=dk?BLUE_D:BLUE_L,O=dk?ORNG_D:ORNG_L,ly=S.layer,none=dk?'#18242f':'#e3e8ee';
+  if(ly==='st')return ramp(O,c.st);if(ly==='r')return ramp(B,c.r/4);if(ly==='cov')return c.own<0?none:hashCol(c.own);return ramp(B,c[ly])}
+function paintCells(){if(!locMap)return;const hide=$('#o-inel').checked,line=isDark()?'#0e1722':'#ffffff';polys.forEach((p,i)=>{const c=C[i];p.setStyle({fillColor:cellColor(c),color:line,weight:0.4,fillOpacity:hide&&!c.el?0.12:(S.layer==='cov'?0.6:0.9)})});renderLegend()}
+function renderChips(){$('#layerchips').innerHTML=LAYERS.map(([k,l])=>`<button class="chip" data-l="${k}" aria-pressed="${S.layer===k}">${l}</button>`).join('');
+  $$('#layerchips .chip').forEach(b=>b.addEventListener('click',()=>{S.layer=b.dataset.l;renderChips();paintCells()}))}
+function renderLegend(){const dk=isDark(),B=dk?BLUE_D:BLUE_L,O=dk?ORNG_D:ORNG_L,ly=S.layer;let h=`<b>${LI[ly]}</b>`;
+  if(ly==='cov')h+=`<div class="hint">Each colour is one hub's catchment by road. Grey is unserved.</div>`;
+  else h+=`<div class="ramp" style="background:linear-gradient(90deg,${(ly==='st'?O:B).join(',')})"></div><div class="ends"><span>${ly==='r'?'Changes':'Low'}</span><span>${ly==='r'?'Stable':'High'}</span></div>`;
+  h+=`<div class="row"><span class="sw" style="background:${css('--hub')};border-radius:50%"></span>Hub</div><div class="row"><span class="sw" style="background:${css('--station')}"></span>Swap station</div>`+($('#cmp').checked?`<div class="row"><span class="sw" style="border:2px solid ${css('--gold')};border-radius:50%"></span>${S.cmpName||'Comparison'} hubs</div>`:'');
+  $('#legend').innerHTML=h}
+function drawHubs(animate){if(!locMap)return;hubL.clearLayers();stL.clearLayers();const hc=css('--hub'),rg=css('--ring');
+  if($('#o-hubs').checked)E.hubRows.forEach((h,k)=>{const c=C[h.j];const m=L.circleMarker([c.la,c.lo],{radius:5+5*Math.sqrt(h.rel),color:rg,weight:2,fillColor:hc,fillOpacity:1,renderer:locMap.svgR});
+    m.bindTooltip(()=>`<b>Hub · ${nearPlace(c.la,c.lo)}</b><br>Expected use: ${band(h.rel)}`);m.on('click',()=>inspectCell(h.j));m.on('mouseover',()=>showZone(h.j));m.on('mouseout',()=>zoneL.clearLayers());m.addTo(hubL);
+    if(animate&&!reduced()){const el=m.getElement();if(el){el.style.transformOrigin=`${m._point.x}px ${m._point.y}px`;el.classList.add('hubpop');el.style.animationDelay=Math.min(k*12,1500)+'ms'}}});
+  if($('#o-st').checked){const ic=stIcon();ST.forEach(s=>L.marker([s.lat,s.lon],{icon:ic}).bindTooltip(`<b>Swap station · ${nearPlace(s.lat,s.lon)}</b>`).on('click',()=>inspectStation(s)).addTo(stL))}
+  renderLegend()}
+function showZone(j){zoneL.clearLayers();const col=css('--gold');C[j].nb.forEach(i=>{if(C[i].own===j)L.polygon(C[i].p,{color:col,weight:2.5,fill:true,fillColor:col,fillOpacity:.18,interactive:false,renderer:locMap.svgR}).addTo(zoneL)})}
+function drawCompare(){cmpL.clearLayers();if(!$('#cmp').checked)return;const k=$('#cmpsel').value;S.cmpName=k;const col=css('--gold');(M.scenarios[k]||[]).forEach(j=>L.circleMarker([C[j].la,C[j].lo],{radius:8,color:col,weight:2.5,fill:false,renderer:locMap.svgR,interactive:false}).addTo(cmpL));renderLegend()}
+function radar(c){const keys=[['D','Demand'],['A','Access'],['F','Safety'],['G','Unserved'],['E','Equity'],['B','Battery']];const cx=120,cy=110,R=78;const ang=i=>-Math.PI/2+i*2*Math.PI/keys.length;
+  const pt=(i,v)=>[cx+Math.cos(ang(i))*R*v,cy+Math.sin(ang(i))*R*v];let s=`<svg class="radar" viewBox="0 0 240 220" width="100%" role="img" aria-label="Profile">`;
+  [0.25,0.5,0.75,1].forEach(r=>{s+=`<polygon points="${keys.map((_,i)=>pt(i,r).join(',')).join(' ')}" fill="none" stroke="${css('--line')}" stroke-width="1"/>`});
+  keys.forEach((k,i)=>{const [x,y]=pt(i,1.18);s+=`<text x="${x}" y="${y+4}" text-anchor="middle">${k[1]}</text>`});
+  s+=`<polygon points="${keys.map((k,i)=>pt(i,Math.max(0.04,c[k[0]])).join(',')).join(' ')}" fill="${css('--accent')}" fill-opacity=".25" stroke="${css('--accent')}" stroke-width="2"/></svg>`;return s}
+function inspectCell(i){const c=C[i],hub=E.hubRows.find(h=>h.j===i);setLocMode('ins');$('#ins-empty').hidden=true;
+  $('#ins').innerHTML=`<div><div class="eyebrow">${hub?'Hub':'Neighbourhood'}</div><h3 style="margin-top:4px">${nearPlace(c.la,c.lo)}</h3></div>
+   <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="pill ${c.S>=0.6?'g':c.S>=0.4?'w':'b'}">Suitability: ${band(c.S)}</span><span class="pill">${c.el?'Can host a hub':'Not suited to a hub'}</span>${c.own>=0?`<span class="pill g">Served by a hub</span>`:`<span class="pill b">Not served</span>`}</div>
+   ${radar(c)}
+   ${[['Demand',c.D],['Accessibility',c.A],['Safety & feasibility',c.F],['Traffic stress',c.st],['Unserved market',c.G],['Equity need',c.E],['Battery feasibility',c.B]].map(([l,v])=>`<div class="idx"><span>${l}</span><div class="bar"><i style="width:${(v*100).toFixed(0)}%"></i></div><span class="lvl">${band(v)}</span></div>`).join('')}
+   ${hub?`<p class="note">This hub's expected use is <b>${band(hub.rel).toLowerCase()}</b>. Hover it on the map to see the area it serves.</p>`:''}`;
+  if(c.own>=0)showZone(c.own)}
+function inspectStation(s){setLocMode('ins');$('#ins-empty').hidden=true;$('#ins').innerHTML=`<div><div class="eyebrow">Swap station</div><h3 style="margin-top:4px">${nearPlace(s.lat,s.lon)}</h3></div><p class="note">Serves ${s.nh} hubs. Open <b>Battery &amp; stations</b> for its charging needs and van loop.</p><button class="btn sm" data-nav="planner/battery">Open Battery &amp; stations</button>`;
+  setTimeout(()=>{BS.sel=s.cell},0)}
+function setLocMode(m){$$('#locmode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m));$('#loc-opt').hidden=m!=='opt';$('#loc-ins').hidden=m!=='ins'}
+$$('#locmode button').forEach(b=>b.addEventListener('click',()=>setLocMode(b.dataset.m)));
+function initLoc(){locMap=mkMap('map');const rend=L.canvas({padding:0.3});
+  polys=C.map(c=>L.polygon(c.p,{renderer:rend,weight:0.4,fillOpacity:0.9}).on('click',()=>inspectCell(c.i)).bindTooltip(()=>`<b>${nearPlace(c.la,c.lo)}</b><br>${LI[S.layer]}: ${S.layer==='cov'?(c.own>=0?'served':'not served'):band(S.layer==='r'?c.r/4:c[S.layer])}`,{sticky:true}));
+  L.layerGroup(polys).addTo(locMap);zoneL=L.layerGroup().addTo(locMap);cmpL=L.layerGroup().addTo(locMap);hubL=L.layerGroup().addTo(locMap);stL=L.layerGroup().addTo(locMap);
+  renderChips();paintCells();drawHubs(true)}
+const WL={D:'Demand',A:'Accessibility',F:'Safety & feasibility',G:'Unserved market',E:'Equity'};
+$('#wsl').innerHTML=Object.keys(WL).map(k=>`<div class="field"><label for="w${k}">${WL[k]} <span class="num" id="w${k}v"></span></label><input type="range" id="w${k}" min="0" max="0.6" step="0.05"></div>`).join('');
+const PRE={'Balanced':W0};Object.entries(M.scenarioWeights).forEach(([k,v])=>PRE[k]=v);
+$('#presets').innerHTML=Object.keys(PRE).map(k=>`<button class="btn sm" data-k="${k}" aria-pressed="${k==='Balanced'}">${k}</button>`).join('');
+$('#cmpsel').innerHTML=Object.keys(M.scenarios).filter(k=>k!=='Balanced').map(k=>`<option>${k}</option>`).join('');
+const wLabel=v=>v===0?'off':v<0.15?'light':v<0.3?'medium':v<0.45?'strong':'very strong';
+function sync(){Object.keys(WL).forEach(k=>{$('#w'+k).value=S.w[k];$('#w'+k+'v').textContent=wLabel(S.w[k])});$('#p').value=S.p;$('#pv').textContent=S.p;$('#adopt').value=S.adopt;$('#av').textContent=S.adopt<0.4?'cautious':S.adopt<1?'base':S.adopt<2?'growth':'high growth';
+  [['bk',1],['wh',0],['tk',1],['dod',2],['cap',0]].forEach(([id,d])=>{$('#'+id).value=S[id];$('#'+id+'v').textContent=Number(S[id]).toFixed(d)});
+  [['unlock',0,'₹'],['permin',1,'₹'],['speed',0,''],['autob',0,'₹'],['autok',1,'₹']].forEach(([id,d,u])=>{$('#'+id).value=T[id];$('#'+id+'v').textContent=u+Number(T[id]).toFixed(d)});
+  $('#rlam').value=RD.lam;$('#rlamv').textContent=lamLabel(RD.lam)}
+const lamLabel=v=>v===0?'Shortest':v<=1?'Balanced':v<=2?'Prefer calm roads':'Calmest';
+$$('#presets .btn').forEach(b=>b.addEventListener('click',()=>{$$('#presets .btn').forEach(x=>x.setAttribute('aria-pressed',x===b));S.w=Object.assign({},PRE[b.dataset.k]);sync();computeS();
+  if(M.scenarios[b.dataset.k]){S.hubs=M.scenarios[b.dataset.k].slice();S.p=S.hubs.length;$('#optmsg').textContent=`Showing the exact optimum for the ${b.dataset.k.toLowerCase()} scenario.`}refresh(true)}));
+Object.keys(WL).forEach(k=>$('#w'+k).addEventListener('input',e=>{S.w[k]=+e.target.value;$('#w'+k+'v').textContent=wLabel(S.w[k]);$$('#presets .btn').forEach(x=>x.setAttribute('aria-pressed',false));computeS();paintCells();$('#optmsg').textContent='Weights changed. Press “Place hubs” to move the hubs.'}));
+$('#p').addEventListener('input',e=>{S.p=+e.target.value;$('#pv').textContent=S.p});
+$('#run').addEventListener('click',()=>{S.hubs=greedy(S.p);refresh(true);$('#optmsg').textContent=`Placed ${S.p} hubs for these weights. The journey planner now uses them.`});
+$('#reset').addEventListener('click',()=>{S.w=Object.assign({},W0);computeS();S.hubs=M.hubs.map(h=>h.cell);S.p=S.hubs.length;sync();$$('#presets .btn').forEach(x=>x.setAttribute('aria-pressed',x.dataset.k==='Balanced'));$('#optmsg').textContent='Showing the exact optimum for the balanced scenario.';refresh(true)});
+$('#cmp').addEventListener('change',e=>{$('#cmpfield').hidden=!e.target.checked;drawCompare()});$('#cmpsel').addEventListener('change',drawCompare);
+['o-hubs','o-st'].forEach(id=>$('#'+id).addEventListener('change',()=>drawHubs(false)));$('#o-inel').addEventListener('change',paintCells);
+
+/* ===== ROAD ENGINE ===== */
+let RN=null;const roadWaiters=[];function onRoads(f){RN?f():roadWaiters.push(f)}
+/*__ENGINE__*/
+
+/* ===== HERO animation ===== */
+const hero={active:true,cv:$('#herocv'),parts:[],ready:false,raf:0,
+  kick(){if(!this.ready||this.raf)return;const loop=t=>{this.raf=0;if(!this.active||document.hidden)return;this.frame(t);this.raf=requestAnimationFrame(loop)};this.raf=requestAnimationFrame(loop)},
+  setup(){const R=RN;const cv=this.cv,box=cv.getBoundingClientRect(),dpr=Math.min(2,window.devicePixelRatio||1);if(!box.width){this.pending=true;return}this.pending=false;cv.width=box.width*dpr;cv.height=box.height*dpr;this.dpr=dpr;
+    // projection: fit city into right ~62% of hero
+    let la0=90,la1=-90,lo0=180,lo1=-180;for(let i=0;i<R.NN;i+=7){la0=Math.min(la0,R.nla[i]);la1=Math.max(la1,R.nla[i]);lo0=Math.min(lo0,R.nlo[i]);lo1=Math.max(lo1,R.nlo[i])}
+    const kx=Math.cos(28.6*Math.PI/180),W=cv.width,H=cv.height,narrow=box.width<900;const areaX=narrow?0:W*0.36,areaW=W-areaX;const sc=Math.min(areaW/((lo1-lo0)*kx),H/(la1-la0))*0.98;
+    const ox=areaX+(areaW-(lo1-lo0)*kx*sc)/2,oy=(H-(la1-la0)*sc)/2;this.P=(la,lo)=>[ox+(lo-lo0)*kx*sc,oy+(la1-la)*sc];
+    // static base
+    const base=document.createElement('canvas');base.width=W;base.height=H;const g=base.getContext('2d');g.lineCap='round';
+    const draw=(filter,col,w)=>{g.beginPath();for(let e=0;e<R.NE;e++){if(!filter(e))continue;let [x,y]=this.P(R.nla[R.U[e]],R.nlo[R.U[e]]);g.moveTo(x,y);for(let k=R.OFF[e];k<R.OFF[e+1];k++){[x,y]=this.P(R.ila[k],R.ilo[k]);g.lineTo(x,y)}[x,y]=this.P(R.nla[R.V[e]],R.nlo[R.V[e]]);g.lineTo(x,y)}g.strokeStyle=col;g.lineWidth=w*dpr;g.stroke()};
+    draw(e=>R.CL[e]>=5,'rgba(120,150,190,0.16)',0.5);draw(e=>R.CL[e]>=3&&R.CL[e]<5,'rgba(140,170,210,0.28)',0.7);draw(e=>R.CL[e]<3,'rgba(160,190,230,0.42)',1.0);
+    const cs=new Set(M.corridors.map(c=>c.e));draw(e=>cs.has(e),'rgba(76,183,170,0.55)',1.4);
+    S.hubs.forEach(j=>{const [x,y]=this.P(C[j].la,C[j].lo);g.beginPath();g.arc(x,y,2.2*dpr,0,7);g.fillStyle='rgba(255,255,255,0.85)';g.fill()});
+    this.base=base;
+    // corridor graph for riders
+    const adj=new Map();M.corridors.forEach(c=>{const e=c.e;[R.U[e],R.V[e]].forEach(nd=>{if(!adj.has(nd))adj.set(nd,[]);adj.get(nd).push(e)})});this.adj=adj;this.cor=M.corridors.map(c=>c.e);
+    this.parts=Array.from({length:narrow?70:150},()=>this.spawn());this.ready=true;$('#herolive').textContent='Live: riders on calm corridors';this.kick()},
+  poly(e,fromU){const R=RN;const pts=[[R.nla[R.U[e]],R.nlo[R.U[e]]]];for(let k=R.OFF[e];k<R.OFF[e+1];k++)pts.push([R.ila[k],R.ilo[k]]);pts.push([R.nla[R.V[e]],R.nlo[R.V[e]]]);if(!fromU)pts.reverse();
+    const xy=pts.map(p=>this.P(p[0],p[1]));let L=0;const cum=[0];for(let i=1;i<xy.length;i++){L+=Math.hypot(xy[i][0]-xy[i-1][0],xy[i][1]-xy[i-1][1]);cum.push(L)}return {xy,cum,L,end:fromU?RN.V[e]:RN.U[e]}},
+  spawn(){const e=this.cor[Math.floor(Math.random()*this.cor.length)];const p=this.poly(e,Math.random()<0.5);return {p,d:Math.random()*p.L,v:(0.6+Math.random()*0.9)*this.dpr,trail:[]}},
+  step(q){q.d+=q.v;while(q.d>q.p.L){const nxt=(this.adj.get(q.p.end)||[]);if(!nxt.length||Math.random()<0.02){Object.assign(q,this.spawn());return}const e=nxt[Math.floor(Math.random()*nxt.length)];q.d-=q.p.L;q.p=this.poly(e,RN.U[e]===q.p.end)}},
+  pos(q){const {xy,cum}=q.p;let i=1;while(i<cum.length&&cum[i]<q.d)i++;if(i>=cum.length)return xy[xy.length-1];const t=(q.d-cum[i-1])/Math.max(1e-6,cum[i]-cum[i-1]);return [xy[i-1][0]+(xy[i][0]-xy[i-1][0])*t,xy[i-1][1]+(xy[i][1]-xy[i-1][1])*t]},
+  frame(){const g=this.cv.getContext('2d');g.globalCompositeOperation='source-over';g.drawImage(this.base,0,0);g.globalCompositeOperation='lighter';
+    for(const q of this.parts){this.step(q);const [x,y]=this.pos(q);q.trail.push([x,y]);if(q.trail.length>9)q.trail.shift();
+      g.beginPath();q.trail.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.strokeStyle='rgba(111,211,197,0.55)';g.lineWidth=2*this.dpr;g.stroke();
+      g.beginPath();g.arc(x,y,2.1*this.dpr,0,7);g.fillStyle='rgba(190,255,245,0.95)';g.fill()}},
+  still(){if(!this.ready)return;const g=this.cv.getContext('2d');g.drawImage(this.base,0,0)}};
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&hero.active)hero.kick()});
+let rsT;window.addEventListener('resize',()=>{clearTimeout(rsT);rsT=setTimeout(()=>{if(RN){hero.ready=false;hero.setup();if(reduced())hero.still()}},250)});
+
+/* ===== PLANNER · ROADS ===== */
+let rmap,rlayer,rhub,rroute;const RD={lam:1.5,a:null,b:null,next:'a',mA:null,mB:null};
+function initRoads(){rmap=mkMap('rmap');rlayer=new RoadLayer({cor:true});rlayer.addTo(rmap);rhub=L.layerGroup().addTo(rmap);rroute=L.layerGroup().addTo(rmap);
+  placeOpts($('#ra'));placeOpts($('#rb'));renderRoadChips();renderRLegend();
+  onRoads(()=>{rlayer.redraw();drawRoadHubs();RD.a=ptPlace(0);RD.b=ptPlace(12);$('#ra').value='0';$('#rb').value='12';designRoute(true)});
+  rmap.on('click',e=>{if(!RN)return;const p={la:e.latlng.lat,lo:e.latlng.lng,label:nearPlace(e.latlng.lat,e.latlng.lng)};if(RD.next==='a'){RD.a=p;RD.next='b';$('#ra').value=''}else{RD.b=p;RD.next='a';$('#rb').value=''}designRoute(true)})}
+const RC={mode:'stress',cor:true,prio:false,hubs:true};
+function renderRoadChips(){const it=[['mode','stress','Traffic stress'],['mode','class','Road class'],['cor',null,'Hub corridors'],['prio',null,'Lane priority'],['hubs',null,'Hubs']];
+  $('#roadchips').innerHTML=it.map(([k,v,l],i)=>`<button class="chip" data-i="${i}" aria-pressed="${v?RC[k]===v:RC[k]}">${l}</button>`).join('');
+  $$('#roadchips .chip').forEach(b=>b.addEventListener('click',()=>{const [k,v]=it[+b.dataset.i];if(v)RC[k]=v;else RC[k]=!RC[k];if(k==='prio'&&RC.prio)RC.cor=true;
+    rlayer.set({mode:RC.mode,cor:RC.cor,prio:RC.prio});drawRoadHubs();renderRoadChips();renderRLegend()}))}
+function drawRoadHubs(){rhub.clearLayers();if(!RC.hubs)return;const hc=css('--hub'),rg=css('--ring');S.hubs.forEach(j=>L.circleMarker([C[j].la,C[j].lo],{radius:4.5,color:rg,weight:1.5,fillColor:hc,fillOpacity:1}).bindTooltip(`Hub · ${nearPlace(C[j].la,C[j].lo)}`).addTo(rhub))}
+function renderRLegend(){const dk=isDark();const CLCOL=dk?['#e66767','#d95926','#c98500','#5598e7','#7d8ea5','#55667c']:['#d03b3b','#eb6834','#c98500','#2a78d6','#7d8ea5','#9aa6b6'];
+  let h=`<b>${RC.mode==='stress'?'Traffic stress':'Road class'}</b>`+(RC.mode==='stress'?`<div class="row"><span class="sw" style="height:3px;background:${css('--road')}"></span>Low stress</div><div class="row"><span class="sw" style="height:3px;background:${css('--road-hi')}"></span>High stress</div>`:['Trunk','Primary','Secondary','Tertiary','Unclassified','Residential & other'].map((k,i)=>`<div class="row"><span class="sw" style="height:3px;background:${CLCOL[i]}"></span>${k}</div>`).join(''));
+  if(RC.cor)h+=`<div class="row"><span class="sw" style="height:5px;background:${RC.prio?(dk?ORNG_D:ORNG_L)[6]:css('--corridor')}"></span>${RC.prio?'Lane priority':'Hub corridor'}</div>`;
+  h+=`<div class="row"><span class="sw" style="height:5px;background:${css('--route')}"></span>Calm route</div><div class="row"><span class="sw" style="height:0;border-top:3px dashed ${css('--quick')}"></span>Shortest route</div><div class="hint" style="margin-top:4px">Minor streets appear as you zoom in.</div>`;$('#rlegend').innerHTML=h}
+const ptPlace=k=>({la:PLACES[k][1],lo:PLACES[k][2],label:PLACES[k][0]});
+$('#ra').addEventListener('change',e=>{if(e.target.value!==''){RD.a=ptPlace(+e.target.value);designRoute(true)}});
+$('#rb').addEventListener('change',e=>{if(e.target.value!==''){RD.b=ptPlace(+e.target.value);designRoute(true)}});
+$('#rswap').addEventListener('click',()=>{[RD.a,RD.b]=[RD.b,RD.a];const a=$('#ra').value;$('#ra').value=$('#rb').value;$('#rb').value=a;designRoute(true)});
+$('#rlam').addEventListener('input',e=>{RD.lam=+e.target.value;$('#rlamv').textContent=lamLabel(RD.lam)});$('#rlam').addEventListener('change',()=>designRoute(false));
+function dragPins(map,layer,st,onMove){const a=L.marker([st.a.la,st.a.lo],{icon:pinIcon('A',css('--accent')),draggable:true,zIndexOffset:1000}).addTo(layer);const b=L.marker([st.b.la,st.b.lo],{icon:pinIcon('B',css('--gold')),draggable:true,zIndexOffset:1000}).addTo(layer);
+  a.on('dragend',()=>{const p=a.getLatLng();st.a={la:p.lat,lo:p.lng,label:nearPlace(p.lat,p.lng)};onMove('a')});b.on('dragend',()=>{const p=b.getLatLng();st.b={la:p.lat,lo:p.lng,label:nearPlace(p.lat,p.lng)};onMove('b')})}
+function profileBar(edges){const R=RN;let tot=0;edges.forEach(e=>tot+=R.LEN[e]);if(!tot)return '';const hi=css('--road-hi'),lo=css('--accent');let h='';let cur=null,acc=0;
+  const flush=()=>{if(cur!==null&&acc>0)h+=`<i style="width:${acc/tot*100}%;background:${cur?hi:lo}"></i>`};edges.forEach(e=>{const s=R.HS[e];if(s!==cur){flush();cur=s;acc=0}acc+=R.LEN[e]});flush();return `<div class="profile" title="Route stress profile">${h}</div>`}
+function designRoute(fit){if(!RN||!RD.a||!RD.b)return;const sa=snap(RD.a.la,RD.a.lo),sb=snap(RD.b.la,RD.b.lo);const calm=route(sa.node,sb.node,RD.lam),short=route(sa.node,sb.node,-1);rroute.clearLayers();
+  if(!calm||!short){$('#rout').innerHTML='<p class="note">No road connection between these points.</p>';return}
+  const sp=edgesToLatLng(short.edges,sa.node),cl=edgesToLatLng(calm.edges,sa.node);
+  animLine(rmap,sp,{color:css('--quick'),weight:4,dashArray:'7 7',opacity:.9,_layer:rroute});
+  L.polyline(cl,{color:css('--ring'),weight:10,opacity:.85,renderer:rmap.svgR}).addTo(rroute);animLine(rmap,cl,{color:css('--route'),weight:5.5,_layer:rroute});
+  dragPins(rmap,rroute,RD,()=>{$('#ra').value='';$('#rb').value='';designRoute(false)});
+  if(fit)rmap.fitBounds(L.latLngBounds(cl.concat(sp)),{paddingTopLeft:rmap.padTL,paddingBottomRight:rmap.padBR});
+  const t=r=>r.m/1000/T.speed*60;
+  $('#rout').innerHTML=`<div class="small muted">${RD.a.label} → ${RD.b.label}</div>
+   <div class="opts"><div class="opt" aria-pressed="true"><span class="t"><span class="sw" style="background:${css('--route')};border-radius:50%"></span>Calm route</span><span class="v">${kmf(calm.m)}</span><span class="s">${minf(t(calm))} by e-bike</span></div>
+    <div class="opt" aria-pressed="false"><span class="t"><span class="sw" style="background:${css('--quick')};border-radius:50%"></span>Shortest</span><span class="v">${kmf(short.m)}</span><span class="s">${minf(t(short))} by e-bike</span></div></div>
+   <div><div class="flabel" style="margin-bottom:6px">Calm route stress profile</div>${profileBar(calm.edges)}<div class="flabel" style="margin:10px 0 6px">Shortest route stress profile</div>${profileBar(short.edges)}
+    <div class="hint" style="margin-top:6px"><span class="sw" style="background:${css('--accent')};width:10px;height:10px"></span> low stress &nbsp; <span class="sw" style="background:${css('--road-hi')};width:10px;height:10px"></span> high stress</div></div>
+   <p class="note">The calm route is ${kmf(Math.max(0,calm.m-short.m))} longer and cuts high-stress riding from ${kmf(short.hs)} to ${kmf(calm.hs)}.</p>`}
+
+/* ===== PLANNER · BATTERY ===== */
+let bmap,blayer,bmk,bsel,vanAnim=0;const BS={sel:null};
+function initBat(){bmap=mkMap('bmap');blayer=new RoadLayer({faint:true,vans:true});blayer.addTo(bmap);bsel=L.layerGroup().addTo(bmap);bmk=L.layerGroup().addTo(bmap);drawBat();
+  $('#blegend').innerHTML=`<b>Battery logistics</b><div class="row"><span class="sw" style="background:${css('--station')}"></span>Swap station</div><div class="row"><span class="sw" style="background:${css('--hub')};border-radius:50%"></span>Hub</div><div class="row"><span class="sw" style="height:0;border-top:3px dashed ${css('--van')}"></span>Van loop on roads</div>`;
+  onRoads(()=>{blayer.redraw();const s=ST.find(x=>x.cell===BS.sel)||ST.slice().sort((a,b)=>b.load-a.load)[0];selectStation(s)})}
+function drawBat(){if(!bmap)return;bmk.clearLayers();const hc=css('--hub'),rg=css('--ring');S.hubs.forEach(j=>L.circleMarker([C[j].la,C[j].lo],{radius:4,color:rg,weight:1.2,fillColor:hc,fillOpacity:1,interactive:false}).addTo(bmk));
+  ST.forEach(s=>L.marker([s.lat,s.lon],{icon:stIcon(BS.sel===s.cell),zIndexOffset:500}).bindTooltip(`Swap station · ${nearPlace(s.lat,s.lon)}`).on('click',()=>selectStation(s)).addTo(bmk))}
+function selectStation(s){if(!s)return;BS.sel=s.cell;drawBat();bsel.clearLayers();cancelAnimationFrame(vanAnim);
+  const v=M.vans.find(x=>x.station===s.cell);const col=css('--van');let pts=[];
+  if(v&&RN&&v.edges.length){// stitch the loop in order
+    const R=RN;let cur=C[s.cell].nd;v.edges.forEach(e=>{const fwd=R.U[e]===cur;const seg=[[R.nla[R.U[e]],R.nlo[R.U[e]]]];for(let k=R.OFF[e];k<R.OFF[e+1];k++)seg.push([R.ila[k],R.ilo[k]]);seg.push([R.nla[R.V[e]],R.nlo[R.V[e]]]);if(!fwd)seg.reverse();pts=pts.concat(seg);cur=fwd?R.V[e]:R.U[e]});
+    L.polyline(pts,{color:css('--ring'),weight:8,opacity:.8,renderer:bmap.svgR}).addTo(bsel);animLine(bmap,pts,{color:col,weight:4.5,_layer:bsel});
+    if(!reduced()&&pts.length>2){const van=L.circleMarker(pts[0],{radius:7,color:css('--ring'),weight:2,fillColor:col,fillOpacity:1,renderer:bmap.svgR}).addTo(bsel);let i=0;const step=()=>{i=(i+1)%pts.length;van.setLatLng(pts[i]);vanAnim=requestAnimationFrame(()=>setTimeout(step,40))};step()}}
+  (s.hubsNow||[]).forEach(j=>L.circleMarker([C[j].la,C[j].lo],{radius:9,color:col,weight:2.5,fill:false,interactive:false,renderer:bmap.svgR}).addTo(bsel));
+  const b=L.latLngBounds((s.hubsNow||[]).map(j=>[C[j].la,C[j].lo]).concat([[s.lat,s.lon]]).concat(pts));bmap.fitBounds(b,{paddingTopLeft:bmap.padTL,paddingBottomRight:bmap.padBR,maxZoom:14});
+  renderStation()}
+function renderStation(){const s=ST.find(x=>x.cell===BS.sel);if(!s)return;const u=s.util;const cls=u>1?'b':u>0.8?'w':'g';
+  const maxLoad=Math.max(...ST.map(x=>x.load),1),maxVan=Math.max(...ST.map(x=>x.van_km||0),1);
+  const lvl=v=>v>=0.75?'High':v>=0.45?'Moderate':v>=0.2?'Low':'Very low';const vl=v=>v>=0.7?'Long':v>=0.4?'Medium':'Short';
+  const row=(l,word,frac)=>`<div class="idx"><span>${l}</span><div class="bar"><i style="width:${Math.max(4,Math.min(100,frac*100))}%"></i></div><span class="lvl">${word}</span></div>`;
+  $('#stpanel').innerHTML=`<div><div class="eyebrow">Swap station</div><h3 style="margin-top:4px">${nearPlace(s.lat,s.lon)}</h3></div>
+   <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="pill ${cls}">${u>1?'Over capacity':u>0.8?'Busy':u>0.3?'Healthy load':'Light load'}</span><span class="pill">Serves ${s.nh} ${s.nh===1?'hub':'hubs'}</span></div>
+   <div style="display:flex;flex-direction:column;gap:9px">
+    ${row('Use of capacity',u>1?'Over':u>0.8?'Busy':u>0.3?'Healthy':'Light',u)}
+    ${row('Swap demand',lvl(s.load/maxLoad),s.load/maxLoad)}
+    ${row('Charging need',lvl(s.kwh/Math.max(...ST.map(x=>x.kwh),1)),s.kwh/Math.max(...ST.map(x=>x.kwh),1))}
+    ${row('Van loop',vl((s.van_km||0)/maxVan),(s.van_km||0)/maxVan)}</div>
+   <p class="hint">${u>1?'Add charging slots or a second site nearby.':u>0.8?'Close to capacity; watch peak hours.':u>0.3?'Comfortable headroom for growth.':'Could run as a small partner-hosted cabinet.'} Change the assumptions below to see how the station responds.</p>`}
+[['bk',1],['wh',0],['tk',1],['dod',2],['cap',0]].forEach(([id,d])=>$('#'+id).addEventListener('input',e=>{S[id]=+e.target.value;$('#'+id+'v').textContent=S[id].toFixed(d);evaluate();renderStation()}));
+$('#adopt').addEventListener('input',e=>{S.adopt=+e.target.value;sync();evaluate();renderStation()});
+
+/* ===== USER ===== */
+let umap,ulayer,uhubL,uroute;const U_={a:null,b:null,opt:'calm',res:null};let hubNodeSet=null,hubByNode=null;
+function hubNodes(){hubNodeSet=new Set();hubByNode=new Map();S.hubs.forEach(j=>{hubNodeSet.add(C[j].nd);hubByNode.set(C[j].nd,j)})}
+function initUser(){umap=mkMap('umap');ulayer=new RoadLayer({faint:true});ulayer.addTo(umap);uhubL=L.layerGroup().addTo(umap);uroute=L.layerGroup().addTo(umap);
+  placeOpts($('#ua'));placeOpts($('#ub'));drawUserHubs();
+  $('#ulegend').innerHTML=`<b>Journey</b><div class="row"><span class="sw" style="height:5px;background:${css('--route')}"></span>E-bike ride</div><div class="row"><span class="sw" style="height:0;border-top:3px dotted ${css('--walk')}"></span>Walk</div><div class="row"><span class="sw" style="background:${css('--hub')};border-radius:50%"></span>Hub</div>`;
+  onRoads(()=>{ulayer.redraw();U_.a=ptPlace(8);U_.b=ptPlace(0);$('#ua').value='8';$('#ub').value='0';plan(true)});
+  umap.on('click',e=>{if(!RN)return;U_.b={la:e.latlng.lat,lo:e.latlng.lng,label:nearPlace(e.latlng.lat,e.latlng.lng)};$('#ub').value='';plan(true)})}
+function drawUserHubs(){if(!umap)return;uhubL.clearLayers();const hc=css('--hub'),rg=css('--ring');S.hubs.forEach(j=>L.circleMarker([C[j].la,C[j].lo],{radius:3.5,color:rg,weight:1,fillColor:hc,fillOpacity:1}).bindTooltip(`Hub · ${nearPlace(C[j].la,C[j].lo)}`).addTo(uhubL))}
+$('#ua').addEventListener('change',e=>{if(e.target.value!==''){U_.a=ptPlace(+e.target.value);plan(true)}});
+$('#ub').addEventListener('change',e=>{if(e.target.value!==''){U_.b=ptPlace(+e.target.value);plan(true)}});
+$('#uswap').addEventListener('click',()=>{[U_.a,U_.b]=[U_.b,U_.a];const a=$('#ua').value;$('#ua').value=$('#ub').value;$('#ub').value=a;plan(true)});
+$$('#utab button').forEach(b=>b.addEventListener('click',()=>{$$('#utab button').forEach(x=>x.setAttribute('aria-pressed',x===b));$('#u-trip').hidden=b.dataset.t!=='trip';$('#u-fare').hidden=b.dataset.t!=='fare'}));
+[['unlock',0,'₹'],['permin',1,'₹'],['speed',0,''],['autob',0,'₹'],['autok',1,'₹']].forEach(([id,d,u])=>{$('#'+id).addEventListener('input',e=>{T[id]=+e.target.value;$('#'+id+'v').textContent=u+T[id].toFixed(d)});$('#'+id).addEventListener('change',()=>plan(false))});
+const walkMin=m=>m/1000/T.walk*60;
+const autoFare=m=>{const k=m/1000;return k<=1.5?T.autob:T.autob+(k-1.5)*T.autok};
+function journey(A,B){const sa=snap(A.la,A.lo),sb=snap(B.la,B.lo);const wd=route(sa.node,sb.node,-1);if(!wd)return null;
+  const wTot=sa.dist+wd.m+sb.dist;const res={sa,sb,walk:{m:wTot,min:walkMin(wTot),edges:wd.edges},auto:{m:wd.m,fare:autoFare(wd.m)}};
+  const ha=search(sa.node,{targets:hubNodeSet,limit:4000}),hb=search(sb.node,{targets:hubNodeSet,limit:4000});
+  if(ha.hit<0||hb.hit<0){res.noHub=ha.hit<0?'start':'destination';return res}
+  const hA=ha.hit,hB=hb.hit;if(hA===hB){res.sameHub=true;return res}
+  const w1=sa.dist+ha.len[hA],w2=sb.dist+hb.len[hB],w1E=pathEdges(ha,sa.node,hA),w2E=pathEdges(hb,sb.node,hB);
+  const mk=lam=>{const ride=route(hA,hB,lam);if(!ride)return null;const rideMin=ride.m/1000/T.speed*60;return {ride,rideMin,fare:T.unlock+T.permin*rideMin,total:walkMin(w1)+2+rideMin+walkMin(w2),m:w1+ride.m+w2,wh:ride.m/1000*S.wh,co2:ride.m/1000*(0.15-S.wh/1000*0.72)}};
+  res.bike={hA,hB,w1,w2,w1E,w2E,calm:mk(T.lam),quick:mk(0)};return res}
+function drawJourney(r,fit){uroute.clearLayers();const A=U_.a,B=U_.b,wc=css('--walk'),rc=css('--route'),ring=css('--ring');let all=[[A.la,A.lo],[B.la,B.lo]];
+  const walkLine=pts=>{L.polyline(pts,{color:wc,weight:4,dashArray:'1 8',lineCap:'round',renderer:umap.svgR}).addTo(uroute);all=all.concat(pts)};
+  if(r&&r.bike&&r.bike[U_.opt]){const b=r.bike,o=b[U_.opt];walkLine([[A.la,A.lo],...edgesToLatLng(b.w1E,r.sa.node)]);
+    const other=b[U_.opt==='calm'?'quick':'calm'];if(other)L.polyline(edgesToLatLng(other.ride.edges,b.hA),{color:css('--quick'),weight:3.5,dashArray:'6 7',opacity:.6,renderer:umap.svgR}).addTo(uroute);
+    const pr=edgesToLatLng(o.ride.edges,b.hA);L.polyline(pr,{color:ring,weight:10,opacity:.85,renderer:umap.svgR}).addTo(uroute);animLine(umap,pr,{color:U_.opt==='calm'?rc:css('--quick'),weight:5.5,_layer:uroute});all=all.concat(pr);
+    walkLine([...edgesToLatLng(b.w2E,r.sb.node).reverse(),[B.la,B.lo]]);
+    [b.hA,b.hB].forEach(h=>L.circleMarker([RN.nla[h],RN.nlo[h]],{radius:8,color:ring,weight:2.5,fillColor:css('--hub'),fillOpacity:1,renderer:umap.svgR}).addTo(uroute))}
+  else if(r)walkLine([[A.la,A.lo],...edgesToLatLng(r.walk.edges,r.sa.node),[B.la,B.lo]]);
+  dragPins(umap,uroute,U_,()=>{$('#ua').value='';$('#ub').value='';plan(false)});
+  if(fit)umap.fitBounds(L.latLngBounds(all),{paddingTopLeft:umap.padTL,paddingBottomRight:umap.padBR,maxZoom:16})}
+function plan(fit){if(!RN||!U_.a||!U_.b)return;hubNodes();const r=journey(U_.a,U_.b);U_.res=r;drawJourney(r,fit);renderTrip();facilities()}
+function renderTrip(){const r=U_.res,A=U_.a,B=U_.b;const head=`<div class="small muted">${A.label} → ${B.label}</div>`;
+  if(!r){$('#u-trip').innerHTML='<p class="note">These points are not connected by road.</p>';return}
+  if(!r.bike){$('#u-trip').innerHTML=`${head}<div class="fare"><span class="amt">Walk</span><span class="muted">${minf(r.walk.min)} · ${kmf(r.walk.m)}</span></div><p class="note">${r.noHub?`There is no hub within reach of the ${r.noHub}.`:'Both ends use the same hub, so walking is the better choice.'}</p>${cmp(null,r)}`;return}
+  const b=r.bike,o=b[U_.opt]||b.calm;
+  $('#u-trip').innerHTML=`${head}
+   <div class="opts">${['calm','quick'].map(k=>{const x=b[k];return x?`<button class="opt" data-o="${k}" aria-pressed="${U_.opt===k}"><span class="t">${k==='calm'?'Calm route':'Quickest'}</span><span class="v">${rs(x.fare)}</span><span class="s">${minf(x.total)} · ${kmf(x.m)}</span></button>`:''}).join('')}</div>
+   ${o.total>=r.walk.min?`<p class="note">Walking (${minf(r.walk.min)}) is about as fast here because of the walk to and from the hubs.</p>`:''}
+   <ol class="legs">
+    <li><b>Walk to hub · ${nearPlace(RN.nla[b.hA],RN.nlo[b.hA])}</b><span>${kmf(b.w1)} · ${minf(walkMin(b.w1))}</span></li>
+    <li class="ride"><b>Ride the e-bike</b><span>${kmf(o.ride.m)} · ${minf(o.rideMin)} · ${Math.round((1-o.ride.hs/Math.max(o.ride.m,1))*100)}% on calm roads</span>${profileBar(o.ride.edges)}</li>
+    <li><b>Dock at hub · ${nearPlace(RN.nla[b.hB],RN.nlo[b.hB])}</b><span>Unlock and dock add 2 min</span></li>
+    <li class="end"><b>Walk to destination</b><span>${kmf(b.w2)} · ${minf(walkMin(b.w2))}</span></li></ol>
+   ${cmp(o,r)}
+   <div class="grid" style="grid-template-columns:1fr 1fr;gap:8px">${[['Battery used',fmt(o.wh)+' Wh'],['CO₂ avoided vs car',fmt(o.co2*1000)+' g']].map(x=>`<div style="background:var(--panel-2);border-radius:10px;padding:9px 11px"><div class="hint">${x[0]}</div><div class="num" style="font-size:16px">${x[1]}</div></div>`).join('')}</div>`;
+  $$('#u-trip .opt').forEach(btn=>btn.addEventListener('click',()=>{U_.opt=btn.dataset.o;drawJourney(U_.res,false);renderTrip()}))}
+function cmp(o,r){const rows=[];if(o)rows.push(['E-bike',o.total,o.fare,css('--accent')]);rows.push(['Auto-rickshaw',Math.max(4,r.auto.m/1000/18*60+4),r.auto.fare,css('--gold')]);rows.push(['Walk',r.walk.min,0,css('--walk')]);
+  const mt=Math.max(...rows.map(x=>x[1]));return `<div><div class="flabel" style="margin-bottom:8px">Compare door-to-door time</div><div class="cmpbars">${rows.map(x=>`<div class="cb"><span>${x[0]}</span><span class="tr"><i style="width:${x[1]/mt*100}%;background:${x[3]}"></i></span><span class="v">${minf(x[1])}${x[2]?' · '+rs(x[2]):''}</span></div>`).join('')}</div><div class="hint" style="margin-top:6px">Auto-rickshaw time assumes 18 km/h plus 4 min to find one.</div></div>`}
+const FAC=[['hub','E-bike hub','M3 17a3 3 0 106 0a3 3 0 10-6 0 M15 17a3 3 0 106 0a3 3 0 10-6 0 M6 17 L10 9 H14 M10 9 L18 17'],['ph','Pharmacy','M10 3h4v7h7v4h-7v7h-4v-7H3v-4h7z'],['gr','Grocery store','M3 4h2l2 12h11l2-8H7'],['rs','Restaurant','M7 3v8 M5 3v5a2 2 0 004 0V3 M7 11v10 M16 3c-2 0-3 3-3 6s1 4 3 4v8'],['hp','Hostel / PG','M3 21V9l9-6 9 6v12 M9 21v-6h6v6'],['poi','Market area','M4 9l2-5h12l2 5 M4 9v11h16V9 M4 9h16']];
+function facilities(){if(!RN||!U_.a)return;const A=U_.a,sa=snap(A.la,A.lo);const res=search(sa.node,{limit:7000});
+  const rows=FAC.map(([k,label,ic])=>{let best=null;
+    if(k==='hub')S.hubs.forEach(j=>{const nd=C[j].nd,d=res.len[nd];if(isFinite(d)&&(!best||d+sa.dist<best.d))best={d:d+sa.dist,cell:j,nd}});
+    else{const need=k==='poi'?T.minc*5:T.minc;C.forEach(c=>{const v=c[k];if(v<need||c.sd>500)return;const d=res.len[c.nd];if(isFinite(d)){const dd=d+sa.dist+c.sd;if(!best||dd<best.d)best={d:dd,cell:c.i,nd:c.nd}}})}
+    return [k,label,ic,best]});
+  $('#facs').innerHTML=rows.map(([k,label,ic,b],i)=>{if(!b)return `<div class="card fac" style="cursor:default"><div class="top"><div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="${ic}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><h3>${label}</h3><div class="hint">None within reach</div></div></div></div>`;
+    const c=C[b.cell];let eb='';if(k!=='hub'&&b.d>1200){const B={la:RN.nla[b.nd],lo:RN.nlo[b.nd]};const j=journey(A,B);if(j&&j.bike&&j.bike.calm&&j.bike.calm.total<j.walk.min)eb=`<span>E-bike <b>${minf(j.bike.calm.total)} · ${rs(j.bike.calm.fare)}</b></span>`}
+    return `<div class="card fac" tabindex="0" data-f="${i}"><div class="top"><div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="${ic}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><h3>${label}</h3><div class="hint">${nearPlace(c.la,c.lo)}</div></div></div>
+     <div class="meta"><span>Road <b>${kmf(b.d)}</b></span><span>Walk <b>${minf(walkMin(b.d))}</b></span>${eb}</div><span class="small" style="color:var(--accent);font-weight:600">Route here</span></div>`}).join('');
+  $$('#facs .fac[data-f]').forEach(el=>{const go=()=>{const [k,label,,b]=rows[+el.dataset.f];U_.b={la:RN.nla[b.nd],lo:RN.nlo[b.nd],label:label+' · '+nearPlace(C[b.cell].la,C[b.cell].lo)};$('#ub').value='';plan(true);$('#umap').scrollIntoView({block:'center',behavior:reduced()?'auto':'smooth'})};el.addEventListener('click',go);el.addEventListener('keydown',e=>{if(e.key==='Enter')go()})})}
+
+/* ===== boot ===== */
+function refresh(anim){evaluate();if(locMap){paintCells();drawHubs(anim);drawCompare()}if(rmap)drawRoadHubs();if(bmap){drawBat();renderStation()}if(umap){drawUserHubs();if(RN&&U_.a)plan(false)}}
+const retheme=()=>{if(locMap){paintCells();drawHubs(false);drawCompare()}[rlayer,blayer,ulayer].forEach(l=>l&&l.redraw());if(rmap){renderRLegend();drawRoadHubs();if(RN)designRoute(false)}if(bmap){drawBat()}if(umap&&RN&&U_.a)plan(false)};
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',retheme);new MutationObserver(retheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+sync();renderAbout();renderRollout();evaluate();nav(fromHash(),false);
+loadRoads().then(()=>{hero.setup();if(reduced())hero.still()}).catch(err=>{console.error(err);$$('[data-roadstatus]').forEach(el=>{el.hidden=false;el.textContent='Road network could not load in this browser.'});$('#herolive').textContent='Road network unavailable'});
+})();
+</script>
