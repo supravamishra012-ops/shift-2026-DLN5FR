@@ -1,4 +1,4 @@
-/* Green Plate: a four-step planning journey for cities and e-mobility operators.
+/* Supreme: a four-step planning journey for cities and e-mobility operators.
    Static site (Leaflet + Chart.js). Data comes from data/*.json, built by scripts/0*_*.py */
 (() => {
   "use strict";
