@@ -1,5 +1,4 @@
-# Green Plate
-
+# Supreme
 A shared planning tool for **municipalities** and **e-mobility service providers** (shared e-bike, e-scooter and battery-swap operators) in India. Both sides walk the same four steps on the same map and finish with a pilot plan they can both sign: zones, fleet and swap stations, parking and land, battery take-back, who does what, and a 90-day timeline.
 
 Named after the green number plates on Indian EVs.
