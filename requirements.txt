@@ -1,0 +1,10 @@
+geopandas>=1.0
+pyogrio
+shapely>=2.0
+pyproj
+pandas
+numpy
+scipy
+networkx
+pulp==2.9.0
+highspy

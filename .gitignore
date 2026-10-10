@@ -1,0 +1,8 @@
+# raw inputs and intermediate outputs
+data/*
+!data/README.md
+build/
+__pycache__/
+*.pyc
+.DS_Store
+.ipynb_checkpoints/
